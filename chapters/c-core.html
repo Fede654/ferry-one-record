@@ -1,0 +1,1072 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<script>/* the theme chosen on the home, applied before the page draws */ try { var t = localStorage.getItem("ferry-theme"); if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t); } catch (e) {}</script>
+<script src="../i18n.is.js"></script>
+<script src="../i18n.js"></script>
+<script src="../swipe.js"></script>
+<script>
+/* Moving between pages: the content fades out, the next page's content rises in (as A does between its
+   two screens); the header and the controls stay put. leaveTo() is used by the arrows and by every link
+   to another page of the presentation. */
+(function () {
+  var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  window.leaveTo = function (url) {
+    if (still) { location.href = url; return; }
+    document.documentElement.classList.add("leaving");
+    setTimeout(function () { location.href = url; }, 140);
+  };
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest("a[href]");
+    if (!a || a.target || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    if (!/\.html(#|$)/.test(a.getAttribute("href"))) return;
+    e.preventDefault(); window.leaveTo(a.href);
+  });
+  // coming back through the browser's history restores the page as it was left: show it again
+  window.addEventListener("pageshow", function (e) { if (e.persisted) document.documentElement.classList.remove("leaving"); });
+})();
+</script>
+<title>Data in the Core</title>
+<meta name="description" content="Chapter C of the ferry presentation, the data in the core: play the duty officer, publish a sailing decision, and watch every channel read the same record. Concept only; not an official Herjólfur service.">
+<style>
+:root {
+  --page: #f4f1ea; --paper: #ffffff; --ink: #1d2733; --muted: #5d6875; --line: rgba(29,39,51,.14);
+  --sea: #1f5f7a; --sea-soft: #dcebf0; --core: #c98a12; --core-soft: #fbf0d6;
+  --ok: #1c7a5a; --warn: #b5541c; --bad: #a33a3a;
+  --ok-soft: #e1f1ea; --warn-soft: #f8e7dc; --bad-soft: #f5e1e1;
+  --s-core: #c98a12; --s-demo: #1c7a5a; --s-next: #1f5f7a; --s-later: #6b5ca5; --s-idea: #7a7f86;
+  --frame: #1d2733; --field: #f7f5f0;
+  --shadow: 0 10px 30px rgba(20,28,36,.07);
+  /* the departure board keeps its own night palette in both themes */
+  --b-bg: #0f1923; --b-row: #152330; --b-ink: #eaf0f4; --b-muted: #8fa1b0; --b-amber: #f2c14e;
+  --b-ok: #4fbf92; --b-warn: #f0a35e; --b-bad: #ef8080; --b-sea: #7cc3df;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --page: #0f161d; --paper: #17212b; --ink: #e6ecf1; --muted: #9aa7b3; --line: rgba(230,236,241,.14);
+    --sea: #6fb3cf; --sea-soft: #16303c; --core: #e5ac3c; --core-soft: #3a2e14;
+    --ok: #4fbf92; --warn: #e08a52; --bad: #e07a7a;
+    --ok-soft: #15332a; --warn-soft: #3a2518; --bad-soft: #3a1c1c;
+    --s-core: #e5ac3c; --s-demo: #4fbf92; --s-next: #6fb3cf; --s-later: #a596e0; --s-idea: #9aa1a9;
+    --frame: #2c3a47; --field: #1d2935;
+    --shadow: 0 10px 30px rgba(0,0,0,.35);
+    --b-bg: #0a1118; --b-row: #101b26;
+  }
+}
+:root[data-theme="dark"] {
+  --page: #0f161d; --paper: #17212b; --ink: #e6ecf1; --muted: #9aa7b3; --line: rgba(230,236,241,.14);
+  --sea: #6fb3cf; --sea-soft: #16303c; --core: #e5ac3c; --core-soft: #3a2e14;
+  --ok: #4fbf92; --warn: #e08a52; --bad: #e07a7a;
+  --ok-soft: #15332a; --warn-soft: #3a2518; --bad-soft: #3a1c1c;
+  --s-core: #e5ac3c; --s-demo: #4fbf92; --s-next: #6fb3cf; --s-later: #a596e0; --s-idea: #9aa1a9;
+  --frame: #2c3a47; --field: #1d2935;
+  --shadow: 0 10px 30px rgba(0,0,0,.35);
+  --b-bg: #0a1118; --b-row: #101b26;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--page); color: var(--ink);
+  font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+button, select { font: inherit; color: inherit; }
+.wrap { max-width: 1240px; margin: 0 auto; padding: 0 16px; }
+.concept { background: var(--ink); color: var(--page); font-size: 13px; text-align: center; padding: 6px 16px; }
+header.hero { padding-top: 40px; padding-bottom: 8px; }
+.eyebrow { color: var(--sea); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; font-size: 13px; }
+h1 { font-size: clamp(30px, 5vw, 48px); line-height: 1.05; margin: 8px 0 12px; letter-spacing: -.02em; }
+.where { font-size: 14px; color: var(--muted); max-width: 760px; margin: 0; padding-left: 12px; border-left: 3px solid var(--core); }
+
+/* Mode bar */
+.modebar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: 24px 0 18px; padding: 12px; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); }
+.toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; background: var(--page); padding: 4px; }
+.toggle button { border: 0; background: transparent; font-weight: 650; padding: 8px 16px; border-radius: 999px; cursor: pointer; white-space: nowrap; }
+.toggle button[aria-pressed="true"] { background: var(--ink); color: var(--page); }
+.toggle button:focus-visible, .ghost:focus-visible, .chip:focus-visible, .publish:focus-visible, .tab:focus-visible, .seg button:focus-visible { outline: 3px solid var(--sea); outline-offset: 2px; }
+.ghost { border: 1px solid var(--line); background: transparent; border-radius: 999px; padding: 7px 14px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.ghost:disabled { opacity: .45; cursor: default; }
+.modenote { flex: 1 1 320px; margin: 0; font-size: 14px; color: var(--muted); }
+.modenote b { color: var(--ink); }
+
+/* Layout */
+.sim { display: grid; grid-template-columns: 372px minmax(0, 1fr); gap: 24px; align-items: start; padding-bottom: 32px; }
+.phone-col { position: sticky; top: 14px; }
+.channels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.wide { grid-column: 1 / -1; }
+@media (max-width: 1000px) {
+  .sim { grid-template-columns: minmax(0, 1fr); }
+  .phone-col { position: static; max-width: 420px; width: 100%; margin: 0 auto; }
+}
+@media (max-width: 720px) {
+  .channels { grid-template-columns: minmax(0, 1fr); }
+  #p-board { order: -2; } #p-fb { order: -1; }
+}
+@media (max-width: 600px) {
+  header.hero { text-align: center; }
+  .modebar { justify-content: center; text-align: center; }
+  .tv-row .a small { display: block; margin-left: 0; }
+  section.finale { padding-bottom: 0; }   /* beats the band's own padding, set further down */
+}
+
+/* Phone / Bridge form */
+.phone { background: var(--paper); border: 10px solid var(--frame); border-radius: 40px; padding: 12px 14px 16px; box-shadow: var(--shadow), 0 24px 60px rgba(20,28,36,.12); }
+.sbar { display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; color: var(--muted); padding: 0 6px 8px; }
+.form-h { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 0 2px 2px; }
+.form-h h2 { font-size: 19px; margin: 0; }
+.form-h span { font-size: 12px; color: var(--muted); }
+.flabel { font-size: 11px; font-weight: 750; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin: 12px 2px 6px; }
+.presets { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 1px solid var(--line); background: var(--field); border-radius: 999px; padding: 5px 11px; font-size: 13px; cursor: pointer; line-height: 1.3; }
+.chip[aria-pressed="true"] { background: var(--sea); border-color: var(--sea); color: var(--paper); }
+.preset-note { font-size: 12px; color: var(--muted); margin: 6px 2px 0; min-height: 1.2em; }
+.rows { display: grid; gap: 4px; }
+.row { display: grid; grid-template-columns: minmax(0, 1fr) 148px; align-items: center; gap: 8px; padding: 5px 6px 5px 8px; border-radius: 10px; background: var(--field); border: 1px solid transparent; }
+.row.edited { border-color: var(--core); background: var(--core-soft); }
+.row label { font-size: 13px; line-height: 1.25; min-width: 0; }
+.row label b { font-variant-numeric: tabular-nums; font-size: 14px; margin-right: 4px; }
+.row label span { color: var(--muted); }
+.row select { width: 100%; font-size: 13px; padding: 5px 6px; border-radius: 8px; border: 1px solid var(--line); background: var(--paper); }
+.seg { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.seg button { border: 0; background: var(--field); padding: 8px; font-size: 14px; font-weight: 650; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--page); }
+.inline { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.inline select { width: 100%; font-size: 14px; padding: 7px 8px; border-radius: 10px; border: 1px solid var(--line); background: var(--field); }
+.hint { font-size: 12px; color: var(--warn); margin: 6px 2px 0; }
+.publish { width: 100%; margin-top: 14px; border: 0; border-radius: 14px; background: var(--sea); color: #fff; font-weight: 750; font-size: 17px; padding: 13px; cursor: pointer; box-shadow: 0 6px 18px rgba(31,95,122,.3); transition: transform .12s; }
+:root[data-theme="dark"] .publish { color: #0f161d; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .publish { color: #0f161d; } }
+.publish:active { transform: scale(.98); }
+.publish.done { background: var(--ok); }
+.phone-cap { font-size: 13px; color: var(--muted); text-align: center; margin: 10px 8px 0; }
+
+/* Panels */
+.panel { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: 14px; min-width: 0; position: relative; }
+.ph { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.ph h2 { font-size: 16px; margin: 0; line-height: 1.25; }
+.ph p { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
+.pill { flex: none; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; border-radius: 999px; padding: 3px 10px; white-space: nowrap; max-width: 60%; overflow: hidden; text-overflow: ellipsis; }
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; }
+.pill.ok { color: var(--ok); background: var(--ok-soft); }
+.pill.warn { color: var(--warn); background: var(--warn-soft); }
+.pill.bad { color: var(--bad); background: var(--bad-soft); }
+.pill.idle { color: var(--muted); background: var(--field); }
+.pill.working::after { content: "…"; animation: blink 1s steps(2) infinite; }
+@keyframes blink { 50% { opacity: .2; } }
+.panel.flash { animation: flash 1.5s ease-out; }
+#p-board .body { max-height: 1400px; overflow: hidden; transition: max-height .7s ease, opacity .5s ease; }
+#p-board.collapsed .body { max-height: 0; opacity: 0; }
+#p-board.collapsed .ph { margin-bottom: 0; }
+@keyframes flash { 0% { box-shadow: 0 0 0 0 rgba(28,122,90,.0), var(--shadow); border-color: var(--ok); } 20% { box-shadow: 0 0 0 6px rgba(28,122,90,.22), var(--shadow); border-color: var(--ok); } 100% { box-shadow: 0 0 0 0 rgba(28,122,90,0), var(--shadow); } }
+.panel.stale { border-color: var(--warn); }
+.panel.stale .body { opacity: .82; }
+.foot { font-size: 12px; color: var(--muted); margin: 10px 0 0; }
+
+/* Departure board */
+.board { background: var(--b-bg); color: var(--b-ink); border-radius: 12px; padding: 10px 12px 8px; font-variant-numeric: tabular-nums; }
+.board-h { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--b-muted); padding: 2px 4px 8px; border-bottom: 1px solid rgba(255,255,255,.08); }
+.board-h strong { color: var(--b-amber); font-size: 14px; letter-spacing: .12em; }
+.brow { display: grid; grid-template-columns: 76px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 8px 4px; border-bottom: 1px solid rgba(255,255,255,.06); }
+.brow:last-child { border-bottom: 0; }
+.brow .tm { font-size: 20px; font-weight: 750; color: var(--b-amber); line-height: 1.1; }
+.brow .tm s { display: block; font-size: 12px; font-weight: 500; color: var(--b-muted); }
+.brow .rt { font-size: 15px; min-width: 0; }
+.brow .rt .hl { color: var(--b-sea); font-weight: 700; }
+.brow .st { font-size: 12px; font-weight: 750; text-transform: uppercase; letter-spacing: .05em; padding: 4px 9px; border-radius: 6px; text-align: right; white-space: nowrap; }
+.brow .st small { display: block; font-size: 10px; font-weight: 600; opacity: .85; letter-spacing: .04em; }
+.st.ok { color: var(--b-ok); background: rgba(79,191,146,.12); }
+.st.fc { color: var(--b-sea); background: rgba(124,195,223,.12); }
+.st.warn { color: var(--b-warn); background: rgba(240,163,94,.13); }
+.st.bad { color: var(--b-bad); background: rgba(239,128,128,.12); }
+.st.plain { color: var(--b-muted); background: transparent; }
+.brow.cx .tm, .brow.cx .rt { opacity: .5; }
+.brow.chg { animation: rowflash 1.8s ease-out; }
+@keyframes rowflash { 0%, 25% { background: rgba(242,193,78,.22); } 100% { background: transparent; } }
+.board-f { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 14px; font-size: 12px; color: var(--b-muted); padding: 8px 4px 2px; border-top: 1px solid rgba(255,255,255,.08); }
+.board-f b { color: var(--b-amber); }
+.board-note { margin: 8px 4px 2px; font-size: 13px; color: var(--b-warn); }
+@media (max-width: 480px) {
+  .brow { grid-template-columns: 58px minmax(0, 1fr); }
+  .brow .st { grid-column: 2; justify-self: start; text-align: left; }
+  .brow .tm { font-size: 18px; }
+}
+
+/* Notice */
+.tabs { display: flex; gap: 4px; margin-bottom: 8px; }
+.tab { border: 1px solid var(--line); background: var(--field); border-radius: 8px; padding: 3px 10px; font-size: 13px; font-weight: 700; cursor: pointer; }
+.tab[aria-selected="true"] { background: var(--ink); color: var(--page); border-color: var(--ink); }
+.site { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.site-bar { background: var(--field); font-size: 11px; color: var(--muted); padding: 5px 10px; border-bottom: 1px solid var(--line); }
+.notice { border-left: 4px solid var(--sea); margin: 10px; padding: 2px 0 2px 12px; font-size: 14px; }
+.notice h3 { margin: 0 0 4px; font-size: 15px; }
+.notice p { margin: 0 0 5px; }
+.notice p.lead { font-weight: 700; }
+.notice.missing { border-left-color: var(--line); color: var(--muted); font-style: italic; }
+.review { font-size: 12px; color: var(--muted); margin: 6px 0 0; }
+.review::before { content: "✎ "; }
+
+/* Facebook */
+.post { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: 14px; }
+.post-h { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
+.avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--sea-soft); display: grid; place-items: center; font-size: 17px; flex: none; }
+.post-h b { display: block; font-size: 14px; }
+.post-h span { font-size: 12px; color: var(--muted); }
+.post-body p { margin: 0 0 6px; }
+.post-body .sep { border-top: 1px dashed var(--line); margin: 8px 0; }
+.post-body.clamp { max-height: 10.5em; overflow: hidden; -webkit-mask-image: linear-gradient(#000 70%, transparent); mask-image: linear-gradient(#000 70%, transparent); }
+.more { border: 0; background: none; padding: 0; color: var(--sea); font-weight: 700; font-size: 13px; cursor: pointer; }
+
+/* Passenger */
+.lock { background: linear-gradient(160deg, #23465a, #142a38); border-radius: 18px; padding: 14px 12px 12px; color: #eef3f6; }
+.lock-time { text-align: center; font-size: 30px; font-weight: 300; letter-spacing: .02em; font-variant-numeric: tabular-nums; }
+.lock-day { text-align: center; font-size: 12px; opacity: .75; margin-bottom: 10px; }
+.notif { background: rgba(255,255,255,.93); color: #1d2733; border-radius: 14px; padding: 10px 12px; font-size: 14px; }
+.notif .app { font-size: 11px; font-weight: 700; color: #5d6875; text-transform: uppercase; letter-spacing: .06em; display: flex; justify-content: space-between; }
+.notif b { display: block; margin: 3px 0 2px; font-size: 15px; }
+.notif p { margin: 0; }
+.notif .acts { display: flex; gap: 6px; margin-top: 8px; }
+.notif .acts button { flex: 1; border: 0; border-radius: 9px; padding: 7px; font-weight: 700; font-size: 13px; cursor: pointer; background: #e6ecf1; color: #1d2733; }
+.notif .acts button.primary { background: #1f5f7a; color: #fff; }
+.notif .acts button:focus-visible { outline: 3px solid #f2c14e; outline-offset: 1px; }
+.notif ul { margin: 6px 0 0; padding-left: 18px; font-size: 13px; }
+.notif.quiet { background: rgba(255,255,255,.14); color: #eef3f6; text-align: center; font-size: 13px; }
+.notif.quiet .app { color: rgba(238,243,246,.7); justify-content: center; }
+.ticket { margin-top: 10px; border: 1px dashed var(--line); border-radius: 12px; padding: 8px 12px; font-size: 13px; display: grid; gap: 2px; }
+.ticket .k { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.ticket .v { font-weight: 700; font-size: 15px; }
+.ticket .v s { color: var(--muted); font-weight: 500; margin-right: 6px; }
+.ticket .n { color: var(--muted); }
+.ticket .n.warn { color: var(--warn); }
+.ticket .n.ok { color: var(--ok); }
+.langs { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+.langs .tab { padding: 2px 8px; font-size: 12px; }
+
+/* Hotel lobby */
+.tv { background: #1b2a35; border: 6px solid #0d151c; border-radius: 10px; padding: 12px 14px; color: #f4f1ea; }
+.tv-h { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; opacity: .8; margin-bottom: 6px; }
+.tv-h strong { font-size: 15px; opacity: 1; }
+.tv-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 6px 0; border-top: 1px solid rgba(255,255,255,.1); font-variant-numeric: tabular-nums; }
+.tv-row .a { font-size: 22px; font-weight: 750; }
+.tv-row .a small { font-size: 13px; font-weight: 500; opacity: .8; margin-left: 6px; }
+.tv-row .b { font-size: 13px; font-weight: 700; text-align: right; }
+.tv-row .b.ok { color: #7fd8b1; } .tv-row .b.fc { color: #9fd3e8; } .tv-row .b.warn { color: #f4b37f; } .tv-row .b.bad { color: #f39a9a; }
+.tv-row.cx .a { opacity: .45; }
+.tv-row.cx .tt { text-decoration: line-through; text-decoration-thickness: 2px; }
+
+/* Log */
+.logtop { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-bottom: 8px; font-size: 14px; }
+.logtop .when { font-variant-numeric: tabular-nums; font-weight: 800; font-size: 18px; }
+.logtop .sum { color: var(--muted); }
+table.log { width: 100%; border-collapse: collapse; font-size: 14px; }
+table.log th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 700; padding: 4px 8px; border-bottom: 1px solid var(--line); }
+table.log td { padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.log td:first-child { font-weight: 650; white-space: nowrap; }
+table.log td .m { display: inline-block; min-width: 9px; height: 9px; width: 9px; border-radius: 50%; margin-right: 8px; vertical-align: 0; background: var(--muted); }
+table.log td .m.ok { background: var(--ok); } table.log td .m.warn { background: var(--warn); } table.log td .m.bad { background: var(--bad); }
+table.log tr.wait td { color: var(--muted); }
+table.log tr.arrive td { animation: rowflash2 1.6s ease-out; }
+@keyframes rowflash2 { 0%, 25% { background: var(--core-soft); } 100% { background: transparent; } }
+.measured { font-size: 11px; font-weight: 700; color: var(--core); border: 1px solid var(--core); border-radius: 999px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
+.history { margin: 10px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--muted); display: grid; gap: 2px; }
+.history li b { font-variant-numeric: tabular-nums; color: var(--ink); margin-right: 6px; }
+@media (max-width: 560px) { table.log td:first-child { white-space: normal; } }
+
+/* The close of the talk: how it grows, on a dark band of its own that fills the screen (like the close of B) */
+.finale { --fbg: #14202b; --fink: #eef2f5; --fline: rgba(238,242,245,.16); --fgold: #e5ac3c;
+  min-height: 100vh; display: grid; align-content: center; padding: clamp(48px, 9vh, 96px) 0; background: var(--fbg); color: var(--fink); border-top: 3px solid var(--fgold); }
+.finale > .wrap { width: 100%; }
+.finale .eyebrow { color: var(--fgold); }
+.finale h2 { font-size: clamp(34px, 5vw, 64px); line-height: 1.04; letter-spacing: -.025em; margin: 10px 0 32px; }
+.grow { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.grow li { background: rgba(255,255,255,.04); border: 1px solid var(--fline); border-radius: 18px; padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; }
+.grow .n { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 17px; border: 2px solid var(--fline); }
+.grow h3 { margin: 0; font-size: 19px; }
+.grow p { margin: 0; font-size: 15px; color: color-mix(in srgb, var(--fink) 82%, transparent); }
+.grow li.core { border-color: var(--fgold); }
+.grow li.core .n { background: var(--fgold); border-color: var(--fgold); color: var(--fbg); }
+.grow li.core h3 { color: var(--fgold); }
+@media (max-width: 1000px) { .grow { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .grow { grid-template-columns: minmax(0, 1fr); } }
+/* Page navigation: one quiet line, the same on every page */
+.pager { position: fixed; right: clamp(16px, 2.4vw, 36px); bottom: 14px; z-index: 20; display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); }
+.pager a, .pager span[aria-disabled] { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); background: var(--paper); color: var(--ink);
+  display: grid; place-items: center; font-size: 17px; line-height: 1; text-decoration: none; box-shadow: 0 4px 14px rgba(10,16,22,.08); }
+.pager span[aria-disabled] { opacity: .35; }
+.pager .hint { margin: 0; font-size: 13px; color: var(--muted); }
+@media (max-width: 860px) { .pager .hint { display: none; } }
+@media (max-width: 600px) { .pager { right: 10px; bottom: 10px; gap: 6px; } }
+@media (hover: none) { .pager .hint { display: none; } }
+main { padding-bottom: 64px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) {
+  .panel.flash, .brow.chg, table.log tr.arrive td, .pill.working::after { animation: none; }
+  .publish, #p-board .body { transition: none; }
+}
+/* Header: the same on every page of the presentation */
+.chapters { display: flex; align-items: stretch; flex-wrap: wrap; gap: 0 clamp(14px, 2vw, 26px); min-height: 52px; padding: 0 clamp(16px, 2.4vw, 36px);
+  background: var(--page); border-bottom: 1px solid var(--line); font: 14px/1.2 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; position: relative; z-index: 30; }
+.chapters a { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); text-decoration: none; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px; padding-top: 2px; }
+.chapters a:hover, .chapters a:focus-visible { color: var(--ink); }
+.chapters a b { font-weight: 800; color: var(--ch); }
+.chapters a[aria-current="page"] { color: var(--ink); font-weight: 600; border-bottom-color: var(--ch); }
+.chapters [data-ch="a"] { --ch: var(--warn); } .chapters [data-ch="b"] { --ch: var(--ok); } .chapters [data-ch="c"] { --ch: var(--core); }
+.chapters .home { --ch: var(--core); color: var(--ink); font-weight: 700; margin-right: clamp(0px, 1.6vw, 22px); }
+.chapters .home i { width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--core); background: radial-gradient(circle, var(--core) 0 2.5px, transparent 3px); }
+.chapters .disc { margin-left: auto; align-self: center; font-size: 12px; color: var(--muted); }
+@media (max-width: 760px) {
+  .chapters { padding-top: 6px; padding-bottom: 6px; row-gap: 4px; }
+  .chapters a { padding-bottom: 4px; }
+  .chapters a:not(.home):not([aria-current]) span { display: none; }
+  .chapters .disc { display: none; }   /* phones: it does not fit the bar; .disc-end carries it */
+}
+.disc-end { display: none; margin: 28px 0 0; font-size: 11px; line-height: 1.4; text-align: center; opacity: .6; }
+@media (max-width: 760px) { .disc-end { display: block; margin: 32px 76px 0; padding-bottom: 22px; } }   /* phones: the disclaimer leaves the bar for the very end of the page, on the line of the arrows, centred clear of them */
+@media (max-width: 400px) {
+  .chapters { column-gap: 12px; }
+  .chapters .home { font-size: 0; gap: 0; }   /* the ring alone takes you home: room for the chapter's name and EN | IS */
+}
+/* Moving between pages: content rises in, fades out on leaving; header and controls stay put */
+@keyframes page-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+body > :not(.chapters):not(.pager):not(.foot):not(script) { animation: page-in .32s ease-out; }
+html.leaving body > :not(.chapters):not(.pager):not(.foot):not(script) { opacity: 0; transition: opacity .14s ease-in; }
+@media (prefers-reduced-motion: reduce) { body > * { animation: none !important; } }
+</style>
+</head>
+<body>
+<nav class="chapters" aria-label="Presentation">
+  <a class="home" href="../index.html"><i aria-hidden="true"></i>One record</a>
+  <a data-ch="a" href="a-problem.html"><b>A</b><span>The problem</span></a>
+  <a data-ch="b" href="b-solution.html"><b>B</b><span>The solution</span></a>
+  <a data-ch="c" href="c-core.html" aria-current="page"><b>C</b><span>Data in the core</span></a>
+  <span class="disc">Concept material — not an official Herjólfur service</span>
+</nav>
+
+<header class="hero wrap" id="top">
+  <div class="eyebrow">C · Data in the core · Where every screen in B reads from</div>
+  <h1>You are the duty officer.</h1>
+</header>
+
+<main class="wrap">
+  <div class="modebar">
+    <div class="toggle" role="group" aria-label="How the decision travels">
+      <button type="button" data-mode="record" aria-pressed="true">With one record</button>
+      <button type="button" data-mode="today" aria-pressed="false">Today's way</button>
+    </div>
+    <button type="button" class="ghost" id="replay" disabled>↺ Replay last decision</button>
+    <p class="modenote" id="modenote"></p>
+  </div>
+
+  <div class="sim">
+    <div class="phone-col">
+      <form class="phone" id="form" aria-label="Bridge form" onsubmit="return false">
+        <div class="sbar"><span id="clock">13:40</span><span>Example day</span></div>
+        <div class="form-h"><h2>⚓ Bridge form</h2><span>duty officer</span></div>
+
+        <div class="flabel" id="lbl-presets">Situation</div>
+        <div class="presets" role="group" aria-labelledby="lbl-presets" id="presets"></div>
+        <p class="preset-note" id="preset-note"></p>
+
+        <div class="flabel">What happens to each sailing</div>
+        <div class="rows" id="rows"></div>
+
+        <div class="flabel" id="lbl-conf">How sure</div>
+        <div class="seg" role="group" aria-labelledby="lbl-conf" id="conf">
+          <button type="button" data-conf="confirmed" aria-pressed="true">Confirmed</button>
+          <button type="button" data-conf="forecast" aria-pressed="false">Forecast</button>
+        </div>
+
+        <div class="inline">
+          <div>
+            <div class="flabel"><label for="next">Next decision</label></div>
+            <select id="next">
+              <option value="">None due</option>
+              <option value="15:00">15:00</option>
+              <option value="16:30">16:30</option>
+              <option value="18:00">18:00</option>
+              <option value="06:00+1">06:00 tomorrow</option>
+            </select>
+          </div>
+          <div>
+            <div class="flabel" id="lbl-reason">Reason</div>
+            <div class="presets" role="group" aria-labelledby="lbl-reason" id="reasons"></div>
+          </div>
+        </div>
+        <p class="hint" id="hint" hidden></p>
+
+        <button type="button" class="publish" id="publish">Publish decision</button>
+      </form>
+      <p class="phone-cap">About a minute, from a phone. The master decides; the form only records it.</p>
+    </div>
+
+    <div class="channels">
+      <article class="panel wide" id="p-board" aria-labelledby="t-board">
+        <div class="ph"><div><h2 id="t-board">Departure board</h2><p id="s-board">Website, terminal and town screens</p></div><span class="pill idle" id="st-board">—</span></div>
+        <div class="body" id="b-board"></div>
+      </article>
+
+      <article class="panel" id="p-notice" aria-labelledby="t-notice">
+        <div class="ph"><div><h2 id="t-notice">Website notice</h2><p>Icelandic · English · Polish</p></div><span class="pill idle" id="st-notice">—</span></div>
+        <div class="tabs" role="tablist" aria-label="Notice language" id="ntabs">
+          <button type="button" class="tab" role="tab" data-lang="is" aria-selected="false">IS</button>
+          <button type="button" class="tab" role="tab" data-lang="en" aria-selected="true">EN</button>
+          <button type="button" class="tab" role="tab" data-lang="pl" aria-selected="false">PL</button>
+        </div>
+        <div class="body" id="b-notice" role="tabpanel"></div>
+      </article>
+
+      <article class="panel" id="p-fb" aria-labelledby="t-fb">
+        <div class="ph"><div><h2 id="t-fb">Facebook post</h2><p>The channel people already follow</p></div><span class="pill idle" id="st-fb">—</span></div>
+        <div class="body" id="b-fb"></div>
+      </article>
+
+      <article class="panel" id="p-phone" aria-labelledby="t-phone">
+        <div class="ph"><div><h2 id="t-phone">A passenger's phone</h2><p>Example booking on the 17:00 from Vestmannaeyjar</p></div><span class="pill idle" id="st-phone">—</span></div>
+        <div class="body" id="b-phone"></div>
+      </article>
+
+      <article class="panel" id="p-hotel" aria-labelledby="t-hotel">
+        <div class="ph"><div><h2 id="t-hotel">Hotel lobby screen</h2><p>An island partner reading the same information</p></div><span class="pill idle" id="st-hotel">—</span></div>
+        <div class="body" id="b-hotel"></div>
+      </article>
+
+      <article class="panel wide" id="p-log" aria-labelledby="t-log">
+        <div class="ph"><div><h2 id="t-log">Decision log</h2><p>When the decision was taken, and when each channel showed it</p></div><span class="pill idle" id="st-log">Kept automatically</span></div>
+        <div class="body" id="b-log"></div>
+      </article>
+    </div>
+  </div>
+  <p class="sr" aria-live="polite" id="announce"></p>
+</main>
+
+<!-- ============ How it grows: the close of the talk, on its own band ============ -->
+<section class="finale" id="grow" aria-labelledby="h-grow">
+  <div class="wrap">
+    <div class="eyebrow">How it grows</div>
+    <h2 id="h-grow">One step at a time</h2>
+    <ol class="grow">
+      <li class="core"><span class="n">1</span><h3>One record</h3><p>The Sailing Record and the bridge form, run beside today’s routine, with a baseline measurement, a usability test and a privacy note.</p></li>
+      <li><span class="n">2</span><h3>Spreading the word</h3><p>Departure board, notices in IS · EN · PL, Facebook text, terminal and town screens, an open feed for partners, the decision log.</p></li>
+      <li><span class="n">3</span><h3>Bookings that listen</h3><p>The booking system reads the record; affected bookings are told and can be moved with one tap.</p></li>
+      <li><span class="n">4</span><h3>Services on top</h3><p>Resident accounts, check-in, berths and onboard extras, deck and freight, visitor mode, an app.</p></li>
+    </ol>
+    <p class="disc-end">Concept material — not an official Herjólfur service</p>
+  </div>
+</section>
+
+<nav class="pager" aria-label="Pages">
+  <span class="hint" title="The browser’s full screen stays on from page to page">F11 full screen</span>
+  <a href="b-solution.html#gains" data-step="-1" title="Previous" aria-label="Previous">←</a>
+  <a href="#grow" data-step="1" title="Next" aria-label="Next">→</a>
+</nav>
+
+<script>
+(function () {
+  var PORT = { VEY: "Vestmannaeyjar", LAN: "Landeyjahöfn", THO: "Þorlákshöfn" };
+  var DAT = { VEY: "Vestmannaeyjum", LAN: "Landeyjahöfn", THO: "Þorlákshöfn" };   // Icelandic dative (frá …)
+  var GEN = { VEY: "Vestmannaeyja", LAN: "Landeyjahafnar", THO: "Þorlákshafnar" }; // Icelandic genitive (til …)
+
+  // The rest of today, from the usual timetable. "alt" is the published Þorlákshöfn variant.
+  var SAILINGS = [
+    { id: "VEY-1430", from: "VEY", to: "LAN", t: "14:30" },
+    { id: "LAN-1545", from: "LAN", to: "VEY", t: "15:45" },
+    { id: "VEY-1700", from: "VEY", to: "LAN", t: "17:00", alt: { from: "VEY", to: "THO", t: "16:00" } },
+    { id: "LAN-1815", from: "LAN", to: "VEY", t: "18:15" },
+    { id: "VEY-1930", from: "VEY", to: "LAN", t: "19:30" },
+    { id: "LAN-2045", from: "LAN", to: "VEY", t: "20:45", alt: { from: "THO", to: "VEY", t: "19:45" } },
+    { id: "VEY-2200", from: "VEY", to: "LAN", t: "22:00" },
+    { id: "LAN-2315", from: "LAN", to: "VEY", t: "23:15" }
+  ];
+  var MINE = "VEY-1700"; // the example passenger's booking
+
+  var REASONS = [
+    { id: "sea", label: "Sea state", en: "sea conditions", is: "sjólag", pl: "stan morza" },
+    { id: "depth", label: "Depth", en: "depth at the Landeyjahöfn harbour mouth", is: "dýpi í hafnarmynni Landeyjahafnar", pl: "głębokość u wejścia do portu Landeyjahöfn" },
+    { id: "weather", label: "Weather", en: "weather", is: "veður", pl: "pogoda" },
+    { id: "tech", label: "Technical", en: "technical reasons", is: "tæknilegir örðugleikar", pl: "przyczyny techniczne" }
+  ];
+  var RE = {}; REASONS.forEach(function (r) { RE[r.id] = r; });
+
+  function allRows(v) { var o = {}; SAILINGS.forEach(function (s) { o[s.id] = v; }); return o; }
+  function rows(base, over) { var o = allRows(base); for (var k in over) o[k] = over[k]; return o; }
+
+  var PRESETS = [
+    { id: "normal", label: "Normal day", clock: "13:30", conf: "confirmed", next: "", reasons: [],
+      rows: allRows("sail"), note: "Everything as in the timetable." },
+    { id: "tho", label: "Moves to Þorlákshöfn", clock: "13:40", conf: "confirmed", next: "06:00+1", reasons: ["sea"],
+      rows: rows("cancel", { "VEY-1700": "move", "LAN-2045": "move" }),
+      note: "Modelled on the public notices of 1–2 Oct 2026." },
+    { id: "pending", label: "Decision at 16:30", clock: "15:15", conf: "confirmed", next: "16:30", reasons: ["sea"],
+      rows: rows("cancel", { "VEY-1700": "pending", "LAN-2045": "pending" }),
+      note: "Modelled on the notice of 4 Oct 2026, about 15:15." },
+    { id: "onetrip", label: "One trip to Landeyjahöfn", clock: "16:17", conf: "confirmed", next: "06:00+1", reasons: ["sea"],
+      rows: rows("cancel", { "VEY-1700": "sail", "LAN-2045": "sail" }),
+      note: "Modelled on the notice of 4 Oct 2026, 16:17." }
+  ];
+  var PR = {}; PRESETS.forEach(function (p) { PR[p.id] = p; });
+
+  // ---------- Wording (EN reviewed by us; IS and PL are example wording) ----------
+  function nextWords(n, lang) {
+    if (n === "06:00+1") return { en: "06:00 tomorrow", is: "kl. 06:00 í fyrramálið", pl: "jutro o 06:00" }[lang];
+    return { en: n, is: "kl. " + n, pl: "o " + n }[lang];
+  }
+  var W = {
+    en: {
+      title: "Sailings today",
+      allNormal: "All sailings today run to and from Landeyjahöfn as scheduled.",
+      confirmed: "Confirmed.", forecast: "Forecast — not yet confirmed.",
+      item: function (x) { return x.t + " from " + PORT[x.from]; },
+      sailing: function (l) { return "Sailing as scheduled: " + l + "."; },
+      moved: function (x) { return "The " + x.t + " from " + PORT[x.from] + " to " + PORT[x.to] + " is replaced by the " + x.alt.t + " from " + PORT[x.alt.from] + " to " + PORT[x.alt.to] + "."; },
+      pendAlt: function (x) { return x.from === "VEY" ? "The " + x.t + " from Vestmannaeyjar will sail to Landeyjahöfn or Þorlákshöfn." : "The " + x.t + " return will sail from Landeyjahöfn or Þorlákshöfn."; },
+      pendOne: function (x) { return "The " + x.t + " from " + PORT[x.from] + " is not yet confirmed."; },
+      cancelled: function (l) { return "Cancelled: " + l + "."; },
+      others: "Other sailings run as scheduled.",
+      reason: function (r) { return "Reason: " + r + "."; },
+      decisionAt: function (t) { return "Decision at " + t + "."; },
+      nextAt: function (t) { return "Next update: " + t + " at the latest."; },
+      bookRecord: "If you have a booking on a changed sailing, you will receive a message with your options.",
+      bookToday: "Passengers who had a booking are asked to contact our office to move their booking."
+    },
+    is: {
+      title: "Ferðir í dag",
+      allNormal: "Allar ferðir dagsins eru samkvæmt áætlun milli Vestmannaeyja og Landeyjahafnar.",
+      confirmed: "Staðfest.", forecast: "Spá — ekki enn staðfest.",
+      item: function (x) { return "kl. " + x.t + " frá " + DAT[x.from]; },
+      sailing: function (l) { return "Samkvæmt áætlun: " + l + "."; },
+      moved: function (x) { return "Í stað ferðarinnar kl. " + x.t + " frá " + DAT[x.from] + " til " + GEN[x.to] + " verður siglt kl. " + x.alt.t + " frá " + DAT[x.alt.from] + " til " + GEN[x.alt.to] + "."; },
+      pendAlt: function (x) { return x.from === "VEY" ? "Ferðin kl. " + x.t + " frá Vestmannaeyjum verður farin til Landeyjahafnar eða Þorlákshafnar." : "Ferðin kl. " + x.t + " til Vestmannaeyja verður farin frá Landeyjahöfn eða Þorlákshöfn."; },
+      pendOne: function (x) { return "Ferðin kl. " + x.t + " frá " + DAT[x.from] + " er óstaðfest."; },
+      cancelled: function (l) { return "Ferðir sem falla niður: " + l + "."; },
+      others: "Aðrar ferðir eru samkvæmt áætlun.",
+      reason: function (r) { return "Ástæða: " + r + "."; },
+      decisionAt: function (t) { return "Ákvörðun verður tekin " + t + "."; },
+      nextAt: function (t) { return "Næsta tilkynning eigi síðar en " + t + "."; },
+      bookRecord: "Farþegar sem eiga bókað í breytta ferð fá skilaboð um þá kosti sem í boði eru.",
+      bookToday: "Farþegar sem áttu bókað í þessar ferðir eru beðnir um að hafa samband við afgreiðsluna til að færa bókun sína."
+    },
+    pl: {
+      title: "Rejsy dzisiaj",
+      allNormal: "Wszystkie dzisiejsze rejsy do i z Landeyjahöfn zgodnie z rozkładem.",
+      confirmed: "Potwierdzone.", forecast: "Prognoza — jeszcze niepotwierdzone.",
+      item: function (x) { return x.t + " z " + PORT[x.from]; },
+      sailing: function (l) { return "Zgodnie z rozkładem: " + l + "."; },
+      moved: function (x) { return "Rejs o " + x.t + " z " + PORT[x.from] + " do " + PORT[x.to] + " zostaje zastąpiony rejsem o " + x.alt.t + " z " + PORT[x.alt.from] + " do " + PORT[x.alt.to] + "."; },
+      pendAlt: function (x) { return x.from === "VEY" ? "Rejs o " + x.t + " z Vestmannaeyjar popłynie do Landeyjahöfn lub Þorlákshöfn." : "Rejs powrotny o " + x.t + " wypłynie z Landeyjahöfn lub Þorlákshöfn."; },
+      pendOne: function (x) { return "Rejs o " + x.t + " z " + PORT[x.from] + " jest jeszcze niepotwierdzony."; },
+      cancelled: function (l) { return "Odwołane rejsy: " + l + "."; },
+      others: "Pozostałe rejsy zgodnie z rozkładem.",
+      reason: function (r) { return "Powód: " + r + "."; },
+      decisionAt: function (t) { return "Decyzja " + t + "."; },
+      nextAt: function (t) { return "Kolejny komunikat najpóźniej " + t + "."; },
+      bookRecord: "Pasażerowie z rezerwacją na zmieniony rejs otrzymają wiadomość z dostępnymi opcjami.",
+      bookToday: "Pasażerowie, którzy mieli rezerwację, proszeni są o kontakt z biurem w celu jej zmiany."
+    }
+  };
+
+  // Passenger message wording
+  var A = {
+    en: {
+      app: "Ferry · example", acc: "Accept", opt: "See options", done: "Accepted — your booking is on the new sailing.",
+      moved: function (x) { return ["Your " + x.t + " has moved to " + PORT[x.alt.to] + " " + x.alt.t, "Confirmed by the duty officer. Accept and your booking moves with it — cars included."]; },
+      movedFc: function (x) { return ["Your " + x.t + " may move to " + PORT[x.alt.to] + " " + x.alt.t, "This is a forecast, not yet confirmed. We will tell you when it is decided."]; },
+      cancel: function (x) { return ["Your " + x.t + " is cancelled", "Choose another sailing, or credit or refund."]; },
+      pending: function (x, n) { return ["Your " + x.t + " may sail to Þorlákshöfn instead", "Decision " + (n ? "at " + nextWords(n, "en") : "soon") + ". We will tell you as soon as it is decided."]; },
+      settled: function (x) { return ["Decided: your " + x.t + " sails to " + PORT[x.to], "As booked. Nothing for you to do."]; },
+      none: "No message needed — nothing changed for this booking.",
+      options: ["Accept the new sailing", "Choose another sailing", "Credit or refund"]
+    },
+    is: {
+      app: "Ferja · dæmi", acc: "Samþykkja", opt: "Sjá valkosti", done: "Samþykkt — bókunin hefur verið færð á nýju ferðina.",
+      moved: function (x) { return ["Ferðin þín kl. " + x.t + " hefur verið færð til " + GEN[x.alt.to] + " kl. " + x.alt.t, "Staðfest. Ef þú samþykkir flyst bókunin á nýju ferðina, bíll meðtalinn."]; },
+      movedFc: function (x) { return ["Ferðin þín kl. " + x.t + " gæti færst til " + GEN[x.alt.to] + " kl. " + x.alt.t, "Þetta er spá, ekki staðfest. Við látum þig vita þegar ákvörðun liggur fyrir."]; },
+      cancel: function (x) { return ["Ferðin þín kl. " + x.t + " fellur niður", "Veldu aðra ferð, inneign eða endurgreiðslu."]; },
+      pending: function (x, n) { return ["Ferðin þín kl. " + x.t + " gæti farið til Þorlákshafnar", "Ákvörðun verður tekin " + (n ? nextWords(n, "is") : "fljótlega") + ". Við látum þig vita um leið og hún liggur fyrir."]; },
+      settled: function (x) { return ["Ákvörðun: ferðin þín kl. " + x.t + " fer til " + GEN[x.to], "Eins og bókað var. Þú þarft ekkert að gera."]; },
+      none: "Engra skilaboða þörf — engin breyting á þessari bókun.",
+      options: ["Samþykkja nýju ferðina", "Velja aðra ferð", "Inneign eða endurgreiðsla"]
+    },
+    pl: {
+      app: "Prom · przykład", acc: "Akceptuj", opt: "Zobacz opcje", done: "Zaakceptowano — rezerwacja jest na nowym rejsie.",
+      moved: function (x) { return ["Twój rejs o " + x.t + " przeniesiono: " + PORT[x.alt.to] + ", " + x.alt.t, "Potwierdzone. Po akceptacji rezerwacja zostanie przeniesiona, razem z samochodem."]; },
+      movedFc: function (x) { return ["Twój rejs o " + x.t + " może zostać przeniesiony: " + PORT[x.alt.to] + ", " + x.alt.t, "To prognoza, jeszcze niepotwierdzona. Damy znać, gdy zapadnie decyzja."]; },
+      cancel: function (x) { return ["Twój rejs o " + x.t + " został odwołany", "Wybierz inny rejs, voucher lub zwrot pieniędzy."]; },
+      pending: function (x, n) { return ["Twój rejs o " + x.t + " może popłynąć do Þorlákshöfn", "Decyzja " + (n ? nextWords(n, "pl") : "wkrótce") + ". Damy znać, gdy tylko zapadnie."]; },
+      settled: function (x) { return ["Decyzja: Twój rejs o " + x.t + " płynie do " + PORT[x.to], "Zgodnie z rezerwacją. Nic nie musisz robić."]; },
+      none: "Brak wiadomości — w tej rezerwacji nic się nie zmieniło.",
+      options: ["Akceptuj nowy rejs", "Wybierz inny rejs", "Voucher lub zwrot"]
+    }
+  };
+
+  // ---------- State ----------
+  var mode = "record";
+  var draft;                // what the form holds
+  var history = [];         // published snapshots (the Sailing Record over time)
+  var shown = {};           // what each channel currently displays
+  var status = {};          // pill per channel
+  var logRows = [];         // per-channel arrival rows for the latest decision
+  var timers = [];
+  var SITE = window.I18N ? I18N.lang : "en";   // the notice and the passenger's phone open in the page's own language
+  var noticeLang = SITE, passLang = SITE, fbOpen = false, accepted = {}, optionsOpen = {};
+
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+  function addMin(hm, m) { var p = hm.split(":"), t = (+p[0]) * 60 + (+p[1]) + m; t = Math.min(t, 23 * 60 + 59); return ("0" + Math.floor(t / 60)).slice(-2) + ":" + ("0" + (t % 60)).slice(-2); }
+  function $(id) { return document.getElementById(id); }
+  function h(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
+  function own(n) { n.translate = false; return n; }   // already in the language picked on the screen
+  function clear(n) { while (n.firstChild) n.removeChild(n.firstChild); return n; }
+  var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function fromPreset(p) {
+    return { rows: clone(p.rows), conf: p.conf, next: p.next, reasons: p.reasons.slice(), clock: p.clock, preset: p.id };
+  }
+  function snapshot(d, seq) {
+    return { seq: seq, decidedAt: d.clock, rows: clone(d.rows), conf: d.conf, next: d.next, reasons: d.reasons.slice(), preset: d.preset };
+  }
+  function groups(s) {
+    var g = { sail: [], move: [], cancel: [], pending: [] };
+    SAILINGS.forEach(function (x) { g[s.rows[x.id]].push(x); });
+    return g;
+  }
+  function summary(s) {
+    var g = groups(s), parts = [];
+    if (!g.move.length && !g.cancel.length && !g.pending.length) parts.push("all sailings as scheduled");
+    if (g.move.length) parts.push(g.move.length + " moved to Þorlákshöfn");
+    if (g.pending.length) parts.push(g.pending.length + " port to be decided");
+    if (g.cancel.length) parts.push(g.cancel.length + " cancelled");
+    parts.push(s.conf);
+    if (s.next) parts.push("next decision " + nextWords(s.next, "en"));
+    return parts.join(" · ");
+  }
+
+  // ---------- Notice text from a snapshot ----------
+  function noticeLines(s, lang, m) {
+    var T = W[lang], g = groups(s), out = [];
+    var changed = g.move.length || g.cancel.length || g.pending.length;
+    if (!changed) out.push({ t: T.allNormal, lead: true });
+    else {
+      out.push({ t: s.conf === "confirmed" ? T.confirmed : T.forecast, lead: true });
+      if (g.sail.length && g.sail.length <= 3) out.push({ t: T.sailing(g.sail.map(T.item).join(", ")) });
+      g.move.forEach(function (x) { out.push({ t: T.moved(x) }); });
+      g.pending.forEach(function (x) { out.push({ t: x.alt ? T.pendAlt(x) : T.pendOne(x) }); });
+      if (g.cancel.length) out.push({ t: T.cancelled(g.cancel.map(T.item).join(", ")) });
+      if (g.sail.length > 3) out.push({ t: T.others });
+    }
+    if (s.reasons.length) out.push({ t: T.reason(s.reasons.map(function (r) { return RE[r][lang]; }).join(", ")) });
+    if (s.next) out.push({ t: g.pending.length ? T.decisionAt(nextWords(s.next, lang)) : T.nextAt(nextWords(s.next, lang)) });
+    if (g.move.length || g.cancel.length) out.push({ t: m === "record" ? T.bookRecord : T.bookToday });
+    return out;
+  }
+
+  // ---------- Form ----------
+  function renderForm() {
+    $("clock").textContent = draft.clock;
+    var pr = $("presets");
+    pr.querySelectorAll(".chip").forEach(function (c) { c.setAttribute("aria-pressed", c.dataset.p === draft.preset); });
+    $("preset-note").textContent = draft.preset ? PR[draft.preset].note : "Your own decision.";
+    var base = draft.preset ? PR[draft.preset].rows : null;
+    SAILINGS.forEach(function (x) {
+      var sel = $("sel-" + x.id); sel.value = draft.rows[x.id];
+      sel.closest(".row").classList.toggle("edited", draft.rows[x.id] !== "sail");
+    });
+    $("conf").querySelectorAll("button").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.conf === draft.conf); });
+    $("next").value = draft.next;
+    $("reasons").querySelectorAll(".chip").forEach(function (c) { c.setAttribute("aria-pressed", draft.reasons.indexOf(c.dataset.r) >= 0); });
+    var g = groups({ rows: draft.rows }), hint = $("hint");
+    if (g.pending.length && !draft.next) { hint.hidden = false; hint.textContent = "Add when the next decision comes — passengers will want to know."; }
+    else if ((g.move.length || g.cancel.length) && !draft.reasons.length) { hint.hidden = false; hint.textContent = "Optional: add a reason. It is written into every notice."; }
+    else hint.hidden = true;
+  }
+  function buildForm() {
+    var pr = $("presets");
+    PRESETS.forEach(function (p) {
+      var b = h("button", "chip", p.label); b.type = "button"; b.dataset.p = p.id;
+      b.addEventListener("click", function () { draft = fromPreset(p); renderForm(); });
+      pr.appendChild(b);
+    });
+    var rws = $("rows");
+    SAILINGS.forEach(function (x) {
+      var r = h("div", "row");
+      var l = h("label"); l.htmlFor = "sel-" + x.id;
+      l.appendChild(h("b", null, x.t)); l.appendChild(h("span", null, PORT[x.from] + " → " + PORT[x.to]));
+      var s = document.createElement("select"); s.id = "sel-" + x.id;
+      [["sail", "Sails as planned"], ["move", x.alt ? "Þorlákshöfn " + x.alt.t : null], ["cancel", "Cancelled"], ["pending", "Decision pending"]].forEach(function (o) {
+        if (!o[1]) return; var op = document.createElement("option"); op.value = o[0]; op.textContent = o[1]; s.appendChild(op);
+      });
+      s.addEventListener("change", function () { draft.rows[x.id] = s.value; draft.preset = null; renderForm(); });
+      r.appendChild(l); r.appendChild(s); rws.appendChild(r);
+    });
+    $("conf").querySelectorAll("button").forEach(function (b) {
+      b.addEventListener("click", function () { draft.conf = b.dataset.conf; draft.preset = null; renderForm(); });
+    });
+    $("next").addEventListener("change", function () { draft.next = this.value; draft.preset = null; renderForm(); });
+    var rs = $("reasons");
+    REASONS.forEach(function (r) {
+      var b = h("button", "chip", r.label); b.type = "button"; b.dataset.r = r.id;
+      b.addEventListener("click", function () {
+        var i = draft.reasons.indexOf(r.id); if (i >= 0) draft.reasons.splice(i, 1); else draft.reasons.push(r.id);
+        draft.preset = null; renderForm();
+      });
+      rs.appendChild(b);
+    });
+    $("publish").addEventListener("click", publish);
+  }
+
+  // ---------- Channel renderers ----------
+  function boardStatus(s, x) {
+    var st = s.rows[x.id], fc = s.conf === "forecast";
+    if (st === "sail") return fc ? ["Expected", "forecast", "fc"] : ["On schedule", "confirmed", "ok"];
+    if (st === "move") return ["Moved", fc ? "forecast" : "confirmed", fc ? "fc" : "warn"];
+    if (st === "cancel") return ["Cancelled", fc ? "forecast" : "", "bad"];
+    return [x.alt ? "Port to be decided" : "To be confirmed", s.next ? "decision " + nextWords(s.next, "en") : "", "warn"];
+  }
+  function rowKey(s, x) { return s ? s.rows[x.id] + "|" + s.conf + "|" + s.next : ""; }
+
+  function renderBoard(prevShown) {
+    var b = clear($("b-board")), s = shown.board;
+    var board = h("div", "board");
+    var today = mode === "today";
+    $("t-board").textContent = today ? "Timetable page" : "Departure board";
+    $("s-board").textContent = today ? "Website — the timetable shows the usual times" : "Website, terminal and town screens";
+    var hd = h("div", "board-h"); hd.appendChild(h("strong", null, today ? "Timetable" : "Departures")); hd.appendChild(h("span", null, "Rest of today · example day"));
+    board.appendChild(hd);
+    SAILINGS.forEach(function (x) {
+      var r = h("div", "brow"), tm = h("div", "tm"), rt = h("div", "rt"), st;
+      if (today) {
+        tm.textContent = x.t; rt.textContent = PORT[x.from] + " → " + PORT[x.to];
+        st = h("div", "st plain", "Usual time");
+      } else {
+        var v = s.rows[x.id], bs = boardStatus(s, x);
+        if (v === "move") {
+          tm.textContent = x.alt.t; tm.appendChild(h("s", null, x.t));
+          var a = h("span", x.alt.from !== x.from ? "hl" : null, PORT[x.alt.from]);
+          var c = h("span", x.alt.to !== x.to ? "hl" : null, PORT[x.alt.to]);
+          rt.appendChild(a); rt.appendChild(document.createTextNode(" → ")); rt.appendChild(c);
+        } else if (v === "pending" && x.alt) {
+          tm.textContent = x.t;
+          if (x.from === "VEY") { rt.appendChild(document.createTextNode("Vestmannaeyjar → ")); rt.appendChild(h("span", "hl", "Landeyjahöfn or Þorlákshöfn")); }
+          else { rt.appendChild(h("span", "hl", "Landeyjahöfn or Þorlákshöfn")); rt.appendChild(document.createTextNode(" → Vestmannaeyjar")); }
+        } else { tm.textContent = x.t; rt.textContent = PORT[x.from] + " → " + PORT[x.to]; }
+        if (v === "cancel") r.classList.add("cx");
+        st = h("div", "st " + bs[2], bs[0]); if (bs[1]) st.appendChild(h("small", null, bs[1]));
+        if (prevShown && rowKey(prevShown, x) !== rowKey(s, x)) r.classList.add("chg");
+      }
+      r.appendChild(tm); r.appendChild(rt); r.appendChild(st); board.appendChild(r);
+    });
+    var f = h("div", "board-f");
+    if (today) {
+      board.appendChild(h("p", "board-note", "Today's decision is not shown here. It is in the notice and on Facebook."));
+      f.appendChild(h("span", null, "14 usual departures a day"));
+    } else {
+      var n = h("span"); n.appendChild(document.createTextNode("Next decision: "));
+      n.appendChild(h("b", null, s.next ? nextWords(s.next, "en") : "none due")); f.appendChild(n);
+      f.appendChild(h("span", null, "Updated " + s.decidedAt + " · from the Sailing Record"));
+    }
+    board.appendChild(f); b.appendChild(board);
+  }
+
+  function renderNotice() {
+    var b = clear($("b-notice")), s = shown.notice;
+    $("ntabs").querySelectorAll(".tab").forEach(function (t) { t.setAttribute("aria-selected", t.dataset.lang === noticeLang); });
+    var site = h("div", "site"); site.appendChild(h("div", "site-bar", "ferry website (example) › Notices"));
+    var n = h("div", "notice");
+    if (mode === "today" && noticeLang === "pl") {
+      n.classList.add("missing");
+      n.appendChild(h("p", null, "No Polish version. The notices of 2–4 Oct 2026 were in Icelandic and English."));
+    } else {
+      n.translate = false;
+      n.appendChild(h("h3", null, W[noticeLang].title + " · " + s.decidedAt));
+      noticeLines(s, noticeLang, mode).forEach(function (l) { n.appendChild(h("p", l.lead ? "lead" : null, l.t)); });
+    }
+    site.appendChild(n); b.appendChild(site);
+    if (noticeLang !== "en" && !(mode === "today" && noticeLang === "pl")) b.appendChild(h("p", "review", "Example wording — to be reviewed by a native speaker."));
+    b.appendChild(h("p", "foot", mode === "record" ? "Written from the decision with wording agreed in advance, so the three languages always say the same thing." : "Copied by hand after the Facebook post."));
+  }
+
+  function renderFb() {
+    var b = clear($("b-fb")), s = shown.fb;
+    var post = h("div", "post"), hd = h("div", "post-h");
+    hd.appendChild(h("div", "avatar", "⛴"));
+    var who = h("div"); who.appendChild(h("b", null, "Ferry page (example)")); who.appendChild(h("span", null, "Posted " + s.decidedAt + " · 🌐"));
+    hd.appendChild(who); post.appendChild(hd);
+    var body = h("div", "post-body" + (fbOpen ? "" : " clamp")); body.translate = false;
+    var langs = mode === "record" ? ["is", "en", "pl"] : ["is", "en"];
+    langs.forEach(function (lg, i) {
+      if (i) body.appendChild(h("div", "sep"));
+      noticeLines(s, lg, mode).forEach(function (l) { body.appendChild(h("p", null, l.t)); });
+    });
+    post.appendChild(body);
+    var more = h("button", "more", fbOpen ? "See less" : "See more"); more.type = "button";
+    more.addEventListener("click", function () { fbOpen = !fbOpen; renderFb(); });
+    post.appendChild(more); b.appendChild(post);
+    b.appendChild(h("p", "foot", mode === "record" ? "Prepared from the record in IS · EN · PL. Staff paste it — or, with permission, it posts itself." : "Written by hand, in Icelandic and English."));
+  }
+
+  function prevOf(s) {
+    for (var i = history.length - 1; i >= 0; i--) if (history[i].seq < s.seq) return history[i];
+    return null;
+  }
+  function renderPhone() {
+    var b = clear($("b-phone")), s = shown.phone, x = SAILINGS.filter(function (y) { return y.id === MINE; })[0];
+    var lg = h("div", "langs"); lg.appendChild(h("span", null, "Passenger's language:"));
+    ["en", "is", "pl"].forEach(function (l) {
+      var t = h("button", "tab", l.toUpperCase()); t.type = "button"; t.setAttribute("aria-pressed", l === passLang);
+      t.setAttribute("aria-selected", l === passLang); t.setAttribute("aria-label", "Show the message in " + { en: "English", is: "Icelandic", pl: "Polish" }[l]);
+      t.addEventListener("click", function () { passLang = l; renderPhone(); }); lg.appendChild(t);
+    });
+    b.appendChild(lg);
+    var lock = h("div", "lock");
+    lock.appendChild(h("div", "lock-time", s.decidedAt)); lock.appendChild(h("div", "lock-day", "Example day"));
+    var T = A[passLang], v = s.rows[MINE], prev = prevOf(s), pv = prev ? prev.rows[MINE] + "|" + prev.conf : "sail|confirmed";
+    var ticketV, ticketN, ticketCls = "n";
+    if (mode === "today") {
+      var q = h("div", "notif quiet"); q.appendChild(h("div", "app", "No new messages"));
+      q.appendChild(h("p", null, "They check Facebook or the website — or phone the office.")); lock.appendChild(q);
+      ticketV = [null, "17:00 · Vestmannaeyjar → Landeyjahöfn"];
+      ticketN = v === "sail" ? "As booked." : "The booking still shows the original sailing. “Passengers who had a booking are asked to contact our office.”";
+      if (v !== "sail") ticketCls = "n warn";
+    } else {
+      var msg = null, acts = false;
+      if (v === "move") { msg = s.conf === "confirmed" ? T.moved(x) : T.movedFc(x); acts = s.conf === "confirmed"; }
+      else if (v === "cancel") { msg = T.cancel(x); acts = "opts"; }
+      else if (v === "pending") msg = T.pending(x, s.next);
+      else if (pv !== "sail|confirmed" || s.conf === "forecast") msg = T.settled(x);
+      if (msg) {
+        var nt = h("div", "notif"), ap = h("div", "app"); ap.appendChild(own(h("span", null, T.app))); ap.appendChild(h("span", null, "now"));
+        nt.appendChild(ap); nt.appendChild(own(h("b", null, msg[0]))); nt.appendChild(own(h("p", null, msg[1])));
+        if (acts && accepted[s.seq]) nt.appendChild(own(h("p", null, "✓ " + T.done)));
+        else if (acts) {
+          var row = own(h("div", "acts"));
+          if (acts === true) { var ac = h("button", "primary", T.acc); ac.type = "button"; ac.addEventListener("click", function () { accepted[s.seq] = true; renderPhone(); }); row.appendChild(ac); }
+          var op = h("button", null, T.opt); op.type = "button"; op.setAttribute("aria-expanded", !!optionsOpen[s.seq]);
+          op.addEventListener("click", function () { optionsOpen[s.seq] = !optionsOpen[s.seq]; renderPhone(); }); row.appendChild(op);
+          nt.appendChild(row);
+          if (optionsOpen[s.seq]) {
+            var ul = own(h("ul")); T.options.slice(acts === true ? 0 : 1).forEach(function (o) { ul.appendChild(h("li", null, o)); });
+            nt.appendChild(ul); nt.appendChild(h("p", null, "Options set by the operator (example)."));
+          }
+        }
+        lock.appendChild(nt);
+      } else {
+        var qq = own(h("div", "notif quiet")); qq.appendChild(h("div", "app", T.app)); qq.appendChild(h("p", null, T.none)); lock.appendChild(qq);
+      }
+      if (v === "move") {
+        ticketV = accepted[s.seq] ? [x.t, x.alt.t + " · " + PORT[x.alt.from] + " → " + PORT[x.alt.to]] : [null, "17:00 · Vestmannaeyjar → Landeyjahöfn"];
+        ticketN = accepted[s.seq] ? "Moved with the sailing." : (s.conf === "confirmed" ? "Proposed: " + x.alt.t + " to Þorlákshöfn — waiting for the passenger." : "Forecast only. Nothing moves yet.");
+        ticketCls = accepted[s.seq] ? "n ok" : "n warn";
+      } else if (v === "cancel") { ticketV = [null, "17:00 · Vestmannaeyjar → Landeyjahöfn"]; ticketN = "Sailing cancelled — options sent."; ticketCls = "n warn"; }
+      else if (v === "pending") { ticketV = [null, "17:00 · Vestmannaeyjar → Landeyjahöfn"]; ticketN = "Port to be decided" + (s.next ? " at " + nextWords(s.next, "en") : "") + "."; ticketCls = "n warn"; }
+      else { ticketV = [null, "17:00 · Vestmannaeyjar → Landeyjahöfn"]; ticketN = "As booked."; ticketCls = "n ok"; }
+    }
+    b.appendChild(lock);
+    var tk = h("div", "ticket"); tk.appendChild(h("span", "k", "Booking EX-1742 · example · 2 people, 1 car"));
+    var tv = h("span", "v"); if (ticketV[0]) tv.appendChild(h("s", null, ticketV[0])); tv.appendChild(document.createTextNode(ticketV[1]));
+    tk.appendChild(tv); tk.appendChild(h("span", ticketCls, ticketN)); b.appendChild(tk);
+    if (passLang !== "en" && mode === "record") b.appendChild(h("p", "review", "Example wording — to be reviewed by a native speaker."));
+  }
+
+  function renderHotel() {
+    var b = clear($("b-hotel")), s = shown.hotel;
+    var tv = h("div", "tv"), hd = h("div", "tv-h");
+    hd.appendChild(h("strong", null, "Leaving the island today")); hd.appendChild(h("span", null, "as of " + s.decidedAt));
+    tv.appendChild(hd);
+    SAILINGS.filter(function (x) { return x.from === "VEY"; }).forEach(function (x) {
+      var v = s.rows[x.id], r = h("div", "tv-row"), a = h("div", "a"), st = boardStatus(s, x), cls = st[2];
+      if (v === "move") { a.appendChild(h("span", "tt", x.alt.t)); a.appendChild(h("small", null, "to " + PORT[x.alt.to])); }
+      else if (v === "pending" && x.alt) { a.appendChild(h("span", "tt", x.t)); a.appendChild(h("small", null, "port to be decided")); }
+      else { a.appendChild(h("span", "tt", x.t)); a.appendChild(h("small", null, "to " + PORT[x.to])); }
+      if (v === "cancel") r.classList.add("cx");
+      var label = v === "pending" ? (s.next ? "Decision " + nextWords(s.next, "en") : "To be decided") : st[0] + (st[1] && v !== "cancel" ? " · " + st[1] : "");
+      r.appendChild(a); r.appendChild(h("div", "b " + cls, label)); tv.appendChild(r);
+    });
+    b.appendChild(tv);
+    b.appendChild(h("p", "foot", mode === "record" ? "Reads the open feed. Nobody at the hotel re-types the news." : "Re-typed from the news by hotel staff, when someone has seen it."));
+  }
+
+  function renderLog() {
+    var b = clear($("b-log")), s = history[history.length - 1];
+    var top = h("div", "logtop");
+    top.appendChild(h("span", "when", "Decision " + s.decidedAt)); top.appendChild(h("span", "sum", summary(s)));
+    b.appendChild(top);
+    var t = h("table", "log"), th = h("tr");
+    th.appendChild(h("th", null, "Channel")); th.appendChild(h("th", null, "Showed the decision"));
+    var thead = h("thead"); thead.appendChild(th); t.appendChild(thead);
+    var tb = h("tbody");
+    logRows.forEach(function (r) {
+      var tr = h("tr", r.wait ? "wait" : (r.fresh ? "arrive" : null)), a = h("td"), c = h("td");
+      a.appendChild(h("span", "m " + (r.wait ? "" : r.k))); a.appendChild(document.createTextNode(r.ch));
+      c.textContent = r.wait ? "waiting…" : r.text;
+      if (!r.wait && r.measured) c.appendChild(h("span", "measured", "measured once · 4 Oct 2026"));
+      tr.appendChild(a); tr.appendChild(c); tb.appendChild(tr); r.fresh = false;
+    });
+    t.appendChild(tb); b.appendChild(t);
+    var older = history.slice(0, -1).slice(-4).reverse();
+    if (older.length) {
+      var ul = h("ul", "history");
+      older.forEach(function (o) { var li = h("li"); li.appendChild(h("b", null, o.decidedAt)); li.appendChild(document.createTextNode(summary(o))); ul.appendChild(li); });
+      b.appendChild(ul);
+    }
+    b.appendChild(h("p", "foot", mode === "record" ? "Every decision is kept with its time: the operator's own evidence of how fast everyone knew." : "Reconstructed from the public channels; measured once from outside, on 4 Oct 2026."));
+  }
+
+  function setPill(ch, k, text, working) {
+    var p = $("st-" + ch); p.className = "pill " + k + (working ? " working" : ""); p.textContent = text;
+    var panel = $("p-" + ch); panel.classList.toggle("stale", k === "warn" && !!working);
+  }
+  function flash(ch) {
+    if (reduced) return;
+    var p = $("p-" + ch); p.classList.remove("flash"); void p.offsetWidth; p.classList.add("flash");
+  }
+  function renderAll(prevBoard) {
+    renderBoard(prevBoard); renderNotice(); renderFb(); renderPhone(); renderHotel(); renderLog();
+  }
+
+  // ---------- Propagation ----------
+  function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+
+  function propagate(s, fromState) {
+    clearTimers();
+    var prevBoard = shown.board;
+    if (fromState) { shown = { board: fromState, notice: fromState, fb: fromState, phone: fromState, hotel: fromState }; prevBoard = fromState; }
+    if (mode === "record") {
+      shown = { board: s, notice: s, fb: s, phone: s, hotel: s };
+      ["board", "notice", "fb", "phone", "hotel"].forEach(function (c) { setPill(c, "ok", "Updated " + s.decidedAt); });
+      logRows = [
+        { ch: "Departure board", k: "ok", text: s.decidedAt + " · same moment", fresh: true },
+        { ch: "Notice IS · EN · PL", k: "ok", text: s.decidedAt + " · same moment, same wording", fresh: true },
+        { ch: "Facebook text", k: "ok", text: s.decidedAt + " · ready to post", fresh: true },
+        { ch: "Passengers on changed sailings", k: "ok", text: s.decidedAt + " · told directly, in their language", fresh: true },
+        { ch: "Partners (hotel, tours, bus)", k: "ok", text: s.decidedAt + " · read the feed", fresh: true },
+        { ch: "Bookings", k: "ok", text: s.decidedAt + " · follow the record", fresh: true }
+      ];
+      renderAll(prevBoard);
+      ["board", "notice", "fb", "phone", "hotel", "log"].forEach(flash);
+      announce("Published at " + s.decidedAt + ". Every channel now shows the same decision.");
+      return;
+    }
+    // Today's way: the same decision travels by hand, one channel after another.
+    var old = shown.fb;
+    shown.board = s; shown.phone = s;
+    setPill("board", "bad", "Usual times only");
+    setPill("phone", "bad", "No direct message");
+    setPill("fb", "warn", "Being written by hand", true);
+    setPill("notice", "warn", "Still the previous notice", true);
+    setPill("hotel", "warn", "Still the earlier news", true);
+    logRows = [
+      { ch: "Facebook", wait: true },
+      { ch: "Website notice", wait: true },
+      { ch: "Hotel lobby", wait: true },
+      { ch: "Timetable page", k: "bad", text: "Not updated — shows the usual times only" },
+      { ch: "Bookings", k: "bad", text: "Not updated — passengers are asked to contact the office" },
+      { ch: "Passengers", k: "bad", text: "No direct message — they look, or they phone" }
+    ];
+    renderAll(prevBoard);
+    var step = function (ms, fn) { timers.push(setTimeout(fn, ms)); };
+    step(1800, function () {
+      shown.fb = s; setPill("fb", "ok", "Posted by hand");
+      logRows[0] = { ch: "Facebook", k: "ok", text: "First — written and posted by hand, in two languages", fresh: true };
+      renderFb(); renderLog(); flash("fb");
+    });
+    step(6200, function () {
+      shown.notice = s; setPill("notice", "ok", "Copied from Facebook");
+      logRows[1] = { ch: "Website notice", k: "warn", text: "4–7 min after Facebook, copied by hand", measured: true, fresh: true };
+      renderNotice(); renderLog(); flash("notice");
+    });
+    step(9500, function () {
+      shown.hotel = s; setPill("hotel", "warn", "Re-typed by staff");
+      logRows[2] = { ch: "Hotel lobby", k: "warn", text: "Whenever someone sees the news and re-types it", fresh: true };
+      renderHotel(); renderLog(); flash("hotel");
+      announce("Today's way: some channels caught up by hand; the timetable, bookings and passengers were not updated.");
+    });
+    announce("Published at " + s.decidedAt + " — now travelling by hand, one channel after another.");
+  }
+
+  function publish() {
+    var s = snapshot(draft, history.length);
+    history.push(s);
+    propagate(s);
+    var btn = $("publish"); btn.textContent = "Published ✓"; btn.classList.add("done");
+    setTimeout(function () { btn.textContent = "Publish decision"; btn.classList.remove("done"); }, 1400);
+    draft.clock = addMin(draft.clock, 2); renderForm();
+    $("replay").disabled = history.length < 2;
+  }
+  function replay() {
+    if (history.length < 2) return;
+    var s = history[history.length - 1];
+    accepted[s.seq] = false; optionsOpen[s.seq] = false;
+    propagate(s, history[history.length - 2]);
+  }
+  function announce(t) { $("announce").textContent = t; }
+
+  function showMode(m) {
+    mode = m;
+    // Today's way keeps the timetable folded away; with one record it opens and updates with everything else
+    $("p-board").classList.toggle("collapsed", m === "today");
+    document.querySelectorAll(".toggle button").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.mode === m); });
+    var note = $("modenote"); clear(note);
+    if (m === "record") {
+      note.appendChild(h("b", null, "With one record: ")); note.appendChild(document.createTextNode("every channel reads the same record and changes at the moment you publish."));
+    } else {
+      note.appendChild(h("b", null, "Today's way, time compressed: ")); note.appendChild(document.createTextNode("order and delays are illustrative, not measured — except the website, which on 4 Oct 2026 caught up 4–7 min after Facebook."));
+    }
+  }
+  function setMode(m) {
+    showMode(m);
+    if (history.length > 1) replay();
+    else propagate(history[0]);
+  }
+
+  // ---------- Init ----------
+  buildForm();
+  history.push(snapshot(fromPreset(PR.normal), 0));
+  shown = { board: history[0], notice: history[0], fb: history[0], phone: history[0], hotel: history[0] };
+  draft = fromPreset(PR.tho);
+  renderForm();
+  document.querySelectorAll(".toggle button").forEach(function (b) { b.addEventListener("click", function () { if (b.dataset.mode !== mode) setMode(b.dataset.mode); }); });
+  $("replay").addEventListener("click", replay);
+  $("ntabs").querySelectorAll(".tab").forEach(function (t) { t.addEventListener("click", function () { noticeLang = t.dataset.lang; renderNotice(); }); });
+  setMode("record");
+  // On first load, show a calm, settled state rather than a flash.
+  ["board", "notice", "fb", "phone", "hotel", "log"].forEach(function (c) { $("p-" + c).classList.remove("flash"); });
+  logRows.forEach(function (r) { r.fresh = false; });
+  // The talk opens on today's way: the problem first, then the switch to one record
+  showMode("today");
+  logRows = [{ ch: "Every channel", k: "ok", text: "A normal day: the usual timetable is right everywhere" }];
+  renderAll();
+  window.__sim = { publish: publish, setMode: setMode, preset: function (id) { draft = fromPreset(PR[id]); renderForm(); }, state: function () { return { mode: mode, history: history, shown: shown }; } };
+})();
+</script>
+<script>
+(function () {
+  // ← → walk the page one section at a time (the demo, then how it grows), then move to the next page;
+  // full screen is the browser’s own (F11), which stays on between pages; keys typed into the page's own controls are left alone
+  var PREV = "b-solution.html#gains", NEXT = null;
+  var STOPS = ["top", "grow"].map(function (id) { return document.getElementById(id); });
+  var smooth = !window.matchMedia("(prefers-reduced-motion: reduce)").matches, aim = null, timer;
+  function current() {
+    if (aim !== null) return aim;
+    if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2) return STOPS.length - 1;
+    var i = 0;
+    STOPS.forEach(function (el, k) { if (el.getBoundingClientRect().top <= 8) i = k; });
+    return i;
+  }
+  function step(d) {
+    var i = current() + d;
+    if (i < 0) { leaveTo(PREV); return; }
+    if (i >= STOPS.length) { if (NEXT) leaveTo(NEXT); return; }
+    aim = i; clearTimeout(timer); timer = setTimeout(function () { aim = null; }, 1200);
+    window.scrollTo({ top: i === 0 ? 0 : STOPS[i].getBoundingClientRect().top + scrollY, behavior: smooth ? "smooth" : "auto" });
+  }
+  window.addEventListener("scrollend", function () { aim = null; });
+  document.querySelectorAll(".pager [data-step]").forEach(function (a) {
+    a.addEventListener("click", function (e) { e.preventDefault(); step(+a.dataset.step); });
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.altKey || e.ctrlKey || e.metaKey || e.defaultPrevented) return;
+    if (e.target.closest && e.target.closest("input, select, textarea, [contenteditable], [role=tab], [role=radio], dialog[open]")) return;
+    if (e.key === "ArrowRight" || e.key === "PageDown") { e.preventDefault(); step(1); }
+    else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); step(-1); }
+  });
+})();
+</script>
+</body>
+</html>

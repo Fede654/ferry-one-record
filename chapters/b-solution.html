@@ -1,0 +1,1066 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<script>/* the theme chosen on the home, applied before the page draws */ try { var t = localStorage.getItem("ferry-theme"); if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t); } catch (e) {}</script>
+<script src="../i18n.is.js"></script>
+<script src="../i18n.js"></script>
+<script src="../swipe.js"></script>
+<script>
+/* Moving between pages: the content fades out, the next page's content rises in (as A does between its
+   two screens); the header and the controls stay put. leaveTo() is used by the arrows and by every link
+   to another page of the presentation. */
+(function () {
+  var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  window.leaveTo = function (url) {
+    if (still) { location.href = url; return; }
+    document.documentElement.classList.add("leaving");
+    setTimeout(function () { location.href = url; }, 140);
+  };
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest("a[href]");
+    if (!a || a.target || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    if (!/\.html(#|$)/.test(a.getAttribute("href"))) return;
+    e.preventDefault(); window.leaveTo(a.href);
+  });
+  // coming back through the browser's history restores the page as it was left: show it again
+  window.addEventListener("pageshow", function (e) { if (e.persisted) document.documentElement.classList.remove("leaving"); });
+})();
+</script>
+<title>The Solution</title>
+<meta name="description" content="Chapter B of the ferry presentation, the solution: who gains from one record of every sailing decision, seven example screens, and how the system could grow. Concept only; not an official Herjólfur service.">
+<style>
+:root {
+  --page: #f4f1ea; --paper: #ffffff; --ink: #1d2733; --muted: #5d6875; --line: rgba(29,39,51,.14);
+  --sea: #1f5f7a; --sea-soft: #dcebf0; --core: #c98a12; --core-soft: #fbf0d6;
+  --ok: #1c7a5a; --warn: #b5541c; --bad: #a33a3a;
+  --s-core: #c98a12; --s-demo: #1c7a5a; --s-next: #1f5f7a; --s-later: #6b5ca5; --s-idea: #7a7f86;
+  --shadow: 0 10px 30px rgba(20,28,36,.07);
+  --well: #eef2f3;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --page: #0f161d; --paper: #17212b; --ink: #e6ecf1; --muted: #9aa7b3; --line: rgba(230,236,241,.14);
+    --sea: #6fb3cf; --sea-soft: #16303c; --core: #e5ac3c; --core-soft: #3a2e14;
+    --ok: #4fbf92; --warn: #e08a52; --bad: #e07a7a;
+    --s-core: #e5ac3c; --s-demo: #4fbf92; --s-next: #6fb3cf; --s-later: #a596e0; --s-idea: #9aa1a9;
+    --shadow: 0 10px 30px rgba(0,0,0,.35);
+    --well: #1d2a35;
+  }
+}
+:root[data-theme="dark"] {
+  --page: #0f161d; --paper: #17212b; --ink: #e6ecf1; --muted: #9aa7b3; --line: rgba(230,236,241,.14);
+  --sea: #6fb3cf; --sea-soft: #16303c; --core: #e5ac3c; --core-soft: #3a2e14;
+  --ok: #4fbf92; --warn: #e08a52; --bad: #e07a7a;
+  --s-core: #e5ac3c; --s-demo: #4fbf92; --s-next: #6fb3cf; --s-later: #a596e0; --s-idea: #9aa1a9;
+  --shadow: 0 10px 30px rgba(0,0,0,.35);
+  --well: #1d2a35;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--page); color: var(--ink);
+  font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; overflow-x: hidden; }
+button { font: inherit; color: inherit; }
+a { color: var(--sea); }
+.wrap { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+.concept { background: var(--ink); color: var(--page); font-size: 13px; text-align: center; padding: 6px 16px; }
+header.hero { padding-top: 48px; padding-bottom: 20px; }
+.eyebrow { color: var(--sea); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; font-size: 13px; }
+h1 { font-size: clamp(32px, 6vw, 54px); line-height: 1.05; margin: 8px 0 16px; letter-spacing: -.02em; }
+.lede { font-size: 19px; color: var(--muted); max-width: 760px; margin: 0 0 14px; }
+section { padding: 36px 0 8px; }
+h2 { font-size: clamp(23px, 3.2vw, 32px); margin: 0 0 4px; letter-spacing: -.01em; }
+.sub { color: var(--muted); margin: 0 0 22px; max-width: 760px; }
+.sec-n { font-size: 13px; font-weight: 700; color: var(--sea); letter-spacing: .06em; text-transform: uppercase; }
+
+/* Gallery */
+.row { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 22px; }
+.shot { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.row.duo { grid-template-columns: minmax(330px, 380px) minmax(0, 1fr); }
+.row.duo .shot .backdrop { flex: 1 1 auto; }
+@media (max-width: 900px) { .row.duo { grid-template-columns: minmax(0, 1fr); } }
+.backdrop { position: relative; border-radius: 22px; padding: 28px 12px; display: flex; justify-content: center; align-items: center;
+  background: radial-gradient(120% 90% at 50% 0%, var(--sea-soft), transparent 70%), var(--well); border: 1px solid var(--line); min-width: 0; }
+.cap { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: start; padding: 0 4px; }
+.cap .nm { font-weight: 700; font-size: 17px; }
+.cap .what { grid-column: 1 / -1; color: var(--muted); font-size: 15px; margin: 0; }
+.badge { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--c); border: 1px solid var(--c); border-radius: 999px; padding: 1px 8px; white-space: nowrap; align-self: center; }
+.ghost { border: 1px solid var(--line); background: var(--paper); border-radius: 999px; padding: 5px 12px; font-size: 13px; cursor: pointer; }
+.ghost:hover, .ghost:focus-visible { border-color: var(--sea); outline: none; }
+
+.explain { background: var(--core-soft); border: 1px solid var(--core); border-radius: 22px; padding: 24px; display: flex; flex-direction: column; gap: 14px; }
+.explain h3 { margin: 0; font-size: 22px; letter-spacing: -.01em; }
+.explain p { margin: 0; }
+.explain ol { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+.explain .readers { display: flex; flex-wrap: wrap; gap: 6px; }
+.explain .readers span { background: var(--paper); border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; font-size: 13px; }
+.explain .readers span.lat { border-style: dashed; color: var(--muted); }
+.explain small { color: var(--muted); }
+@media (max-width: 820px) { .start { grid-template-columns: 1fr; } }
+
+/* ---------- Phone frame ---------- */
+.phone { --pw: 300px; width: var(--pw); height: 624px; flex: 0 0 auto; border-radius: 48px; padding: 11px; position: relative;
+  background: linear-gradient(145deg, #2b3138, #0d1013); box-shadow: 0 0 0 1px rgba(255,255,255,.06) inset, 0 24px 50px rgba(10,16,22,.28), 0 2px 6px rgba(10,16,22,.2); transition: box-shadow .4s; }
+.phone::before { content: ""; position: absolute; top: 20px; left: 50%; width: 88px; height: 25px; margin-left: -44px; border-radius: 20px; background: #050607; z-index: 5; }
+.screen { position: relative; height: 100%; border-radius: 38px; overflow: hidden; background: var(--paper); color: var(--ink); display: flex; flex-direction: column; font-size: 13.5px; line-height: 1.4; }
+.sbar { flex: 0 0 auto; height: 46px; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 26px 6px 30px; font-size: 13px; font-weight: 650; }
+.sbar .ic { display: inline-flex; gap: 5px; align-items: center; }
+.sig { display: inline-flex; gap: 2px; align-items: flex-end; height: 10px; }
+.sig i { width: 3px; background: currentColor; border-radius: 1px; }
+.sig i:nth-child(1) { height: 4px; } .sig i:nth-child(2) { height: 6px; } .sig i:nth-child(3) { height: 8px; } .sig i:nth-child(4) { height: 10px; opacity: .35; }
+.bat { width: 22px; height: 11px; border: 1.5px solid currentColor; border-radius: 3px; position: relative; opacity: .9; }
+.bat::after { content: ""; position: absolute; inset: 1.5px 6px 1.5px 1.5px; background: currentColor; border-radius: 1px; }
+.app { flex: 1 1 auto; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; overscroll-behavior: contain; }
+.app::-webkit-scrollbar { display: none; }
+.app:focus-visible { outline: 2px solid var(--sea); outline-offset: -2px; }
+.homebar { position: absolute; bottom: 7px; left: 50%; width: 110px; height: 4px; margin-left: -55px; border-radius: 4px; background: var(--ink); opacity: .35; z-index: 4; }
+.appbar { position: sticky; top: 0; z-index: 3; background: var(--paper); display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 16px 10px; border-bottom: 1px solid var(--line); }
+.appbar h4 { margin: 0; font-size: 17px; letter-spacing: -.01em; }
+.appbar .who { font-size: 11.5px; color: var(--muted); font-weight: 500; display: block; }
+.ex { font-size: 9.5px; font-weight: 800; letter-spacing: .1em; color: var(--warn); border: 1px solid currentColor; border-radius: 999px; padding: 1px 7px; white-space: nowrap; }
+.pad { padding: 12px 14px 26px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.pad > *, .seg button { min-width: 0; }
+.muted { color: var(--muted); }
+.tiny { font-size: 11.5px; color: var(--muted); }
+
+/* App pieces */
+.note { border-radius: 12px; padding: 10px 12px; font-size: 12.5px; background: var(--core-soft); border: 1px solid color-mix(in srgb, var(--core) 45%, transparent); }
+.note b { display: block; font-size: 13px; }
+.note.sea { background: var(--sea-soft); border-color: color-mix(in srgb, var(--sea) 35%, transparent); }
+.seg { display: flex; background: var(--well); border-radius: 10px; padding: 3px; gap: 2px; }
+.seg button { flex: 1; border: 0; background: transparent; border-radius: 8px; padding: 6px 4px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--muted); white-space: nowrap; }
+.seg button[aria-pressed="true"] { background: var(--paper); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.seg button:focus-visible, .chipb:focus-visible, .btn:focus-visible, .opt:focus-visible, .notif:focus-visible { outline: 2px solid var(--sea); outline-offset: 2px; }
+.lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .07em; font-weight: 700; color: var(--muted); margin: 0 0 6px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chipb { border: 1px solid var(--line); background: var(--paper); border-radius: 999px; padding: 5px 11px; font-size: 12.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+.chipb[aria-pressed="true"] { background: var(--sea); border-color: var(--sea); color: var(--paper); }
+.btn { width: 100%; border: 0; border-radius: 12px; padding: 12px; font-weight: 700; font-size: 14px; cursor: pointer; background: var(--sea); color: var(--paper); }
+.btn.sec { background: var(--well); color: var(--ink); }
+.btn.line { background: transparent; border: 1px solid var(--line); color: var(--ink); }
+.btn.core { background: var(--core); color: #1d1606; }
+.btn[disabled] { opacity: .45; cursor: not-allowed; }
+.stack { display: grid; gap: 8px; }
+.card2 { border: 1px solid var(--line); border-radius: 14px; padding: 12px; background: var(--paper); }
+
+/* Status pills */
+.pill { --c: var(--muted); font-size: 10.5px; font-weight: 750; letter-spacing: .02em; border-radius: 999px; padding: 2px 8px; color: var(--c); background: color-mix(in srgb, var(--c) 13%, transparent); border: 1px solid color-mix(in srgb, var(--c) 30%, transparent); white-space: nowrap; }
+.p-confirmed { --c: var(--ok); }
+.p-forecast { --c: var(--core); background: transparent; border: 1.5px dashed var(--c); }
+.p-changed { --c: var(--warn); }
+.p-cancelled { --c: var(--bad); }
+.p-sailed { --c: var(--muted); background: transparent; }
+.p-timetable { --c: var(--muted); background: transparent; }
+.p-pending { --c: var(--s-later); background: transparent; border-style: dashed; }
+
+/* Board rows */
+.daytabs { display: flex; gap: 4px; }
+.srow { display: grid; grid-template-columns: 46px 1fr auto; gap: 10px; align-items: center; padding: 9px 2px; border-bottom: 1px solid var(--line); }
+.srow:last-child { border-bottom: 0; }
+.srow .tm { font-weight: 800; font-size: 15px; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.srow .rt b { display: block; font-size: 13px; }
+.srow .rt small { display: block; font-size: 11px; color: var(--muted); }
+.srow.is-cancelled .tm, .srow.is-cancelled .rt b { text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--bad) 70%, transparent); color: var(--muted); }
+.srow.is-sailed { opacity: .55; }
+.srow.is-changed .tm { color: var(--warn); }
+.srow.summary { grid-template-columns: 46px 1fr; }
+.srow.summary .tm { font-size: 12px; color: var(--muted); font-weight: 600; }
+.legend2 { display: flex; flex-wrap: wrap; gap: 5px; }
+.upd { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--muted); }
+.live { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 60%, transparent); animation: live 2.4s infinite; }
+@keyframes live { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 55%, transparent); } 70% { box-shadow: 0 0 0 7px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+
+/* ---------- Terminal / town screen ---------- */
+.tv { width: min(100%, 980px); container-type: inline-size; }
+.tv-bezel { background: linear-gradient(180deg, #262b31, #121519); border-radius: 16px; padding: 12px; box-shadow: 0 30px 60px rgba(10,16,22,.3), 0 0 0 1px rgba(255,255,255,.05) inset; }
+.tv-screen { --t-bg: #081017; --t-ink: #eef3f6; --t-dim: #8c9aa6; --t-amb: #ffc94d; --t-line: rgba(238,243,246,.1);
+  background: radial-gradient(120% 120% at 0% 0%, #0f2230, var(--t-bg) 60%); color: var(--t-ink); border-radius: 6px; aspect-ratio: 16 / 9; overflow: hidden;
+  display: flex; flex-direction: column; font-size: clamp(9px, 1.85cqi, 18px); line-height: 1.25; }
+.tv-stand { width: 18%; height: 26px; margin: 0 auto; background: linear-gradient(180deg, #1a1e22, #30363d); clip-path: polygon(30% 0, 70% 0, 100% 100%, 0 100%); }
+.tv-head { display: flex; align-items: center; justify-content: space-between; padding: 1.2em 1.6em .9em; border-bottom: 1px solid var(--t-line); gap: 1em; }
+.tv-title { font-size: 2.1em; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; transition: opacity .35s; }
+.tv-title small { display: block; font-size: .36em; letter-spacing: .14em; color: var(--t-dim); font-weight: 600; }
+.tv-right { text-align: right; }
+.tv-clock { font-size: 2.1em; font-weight: 300; font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+.tv-ex { display: inline-block; font-size: .7em; font-weight: 800; letter-spacing: .14em; color: var(--t-amb); border: 1px solid currentColor; border-radius: 99px; padding: .1em .7em; }
+.tv-grid { flex: 1; display: flex; flex-direction: column; padding: .3em 1.6em; }
+.tv-r { display: grid; grid-template-columns: 5.2em 9.5em 1fr 10.5em; gap: 1.2em; align-items: center; padding: .62em 0; border-bottom: 1px solid var(--t-line); }
+.tv-r.h { color: var(--t-dim); font-size: .78em; text-transform: uppercase; letter-spacing: .12em; font-weight: 700; padding: .7em 0 .5em; }
+.tv-r .t { font-size: 1.55em; font-weight: 800; color: var(--t-amb); font-variant-numeric: tabular-nums; }
+.tv-r .d { font-size: 1.3em; font-weight: 650; }
+.tv-r .rm { color: var(--t-dim); font-size: .95em; }
+.tv-r .tom { font-size: .62em; display: block; color: var(--t-dim); font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
+.tv-st { justify-self: start; font-weight: 800; font-size: .9em; letter-spacing: .08em; text-transform: uppercase; padding: .3em .8em; border-radius: .3em; }
+.tv-st.confirmed { background: #1e7c5a; color: #fff; }
+.tv-st.changed { background: #ffc94d; color: #241a00; }
+.tv-st.cancelled { background: #b23b3b; color: #fff; }
+.tv-st.forecast { border: 2px dashed #ffc94d; color: #ffc94d; }
+.tv-r.cx .t, .tv-r.cx .d { text-decoration: line-through; text-decoration-color: rgba(255,120,120,.75); color: var(--t-dim); }
+.tv-foot { display: flex; align-items: center; gap: 1em; padding: .8em 1.6em; background: rgba(255,201,77,.1); border-top: 1px solid rgba(255,201,77,.3); font-size: 1em; white-space: nowrap; overflow: hidden; }
+.tv-foot b { color: var(--t-amb); }
+.tv-fade { transition: opacity .35s; }
+.tv-fade.out { opacity: 0; }
+@container (max-width: 560px) {
+  .tv-r { grid-template-columns: 4.6em 1fr 8.5em; }
+  .tv-r > :nth-child(4) { display: none; }
+  .tv-screen { aspect-ratio: auto; font-size: 11px; }
+  .tv-foot { white-space: normal; }
+}
+.tv-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; margin-top: 14px; font-size: 13px; color: var(--muted); }
+
+/* ---------- Lock screen / alert ---------- */
+.lock { position: absolute; inset: 0; z-index: 4; color: #fff; display: flex; flex-direction: column; align-items: center; padding: 56px 12px 20px;
+  background: radial-gradient(90% 60% at 30% 10%, #3b8bab 0%, transparent 60%), linear-gradient(170deg, #1f5f7a 0%, #10303f 55%, #0a1a24 100%); transition: opacity .35s, transform .35s; }
+.lock.gone { opacity: 0; transform: scale(1.04); pointer-events: none; }
+.lock .ldate { font-size: 14px; font-weight: 600; opacity: .85; }
+.lock .ltime { font-size: 68px; font-weight: 300; line-height: 1; letter-spacing: -.02em; margin: 2px 0 26px; font-variant-numeric: tabular-nums; }
+.lock .exl { position: absolute; top: 18px; right: 26px; font-size: 9px; font-weight: 800; letter-spacing: .1em; border: 1px solid rgba(255,255,255,.6); border-radius: 99px; padding: 1px 6px; }
+.notif { width: 100%; text-align: left; border: 0; cursor: pointer; color: #fff; border-radius: 20px; padding: 11px 13px; background: rgba(255,255,255,.17); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 6px 20px rgba(0,0,0,.2); animation: drop .6s cubic-bezier(.2,.8,.2,1) both .4s; }
+@keyframes drop { from { opacity: 0; transform: translateY(-18px); } to { opacity: 1; transform: none; } }
+.notif .nh { display: flex; align-items: center; gap: 7px; font-size: 11.5px; opacity: .85; margin-bottom: 3px; }
+.notif .ai { width: 20px; height: 20px; border-radius: 6px; background: #fff; color: #1f5f7a; display: grid; place-items: center; font-size: 12px; font-weight: 900; }
+.notif .nt { font-weight: 700; font-size: 14px; }
+.notif .nb { font-size: 13px; opacity: .92; }
+.lock .hint { margin-top: auto; font-size: 12px; opacity: .7; }
+.chg { display: grid; gap: 0; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.chg > div { padding: 10px 12px; display: grid; grid-template-columns: 40px 1fr; gap: 8px; align-items: center; }
+.chg .k { font-size: 10.5px; font-weight: 750; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+.chg .was { background: var(--well); }
+.chg .was .v { text-decoration: line-through; color: var(--muted); }
+.chg .now { background: color-mix(in srgb, var(--ok) 9%, var(--paper)); }
+.chg .v b { display: block; font-size: 15px; }
+.lang { display: flex; justify-content: flex-end; gap: 4px; align-items: center; }
+.lang button { border: 1px solid var(--line); background: transparent; border-radius: 6px; padding: 1px 6px; font-size: 11px; font-weight: 700; cursor: pointer; color: var(--muted); }
+.lang button[aria-pressed="true"] { color: var(--paper); background: var(--ink); border-color: var(--ink); }
+.opt { width: 100%; text-align: left; border: 1px solid var(--line); background: var(--paper); border-radius: 12px; padding: 10px 12px; cursor: pointer; display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; align-items: center; }
+.opt:hover { border-color: var(--sea); }
+.opt b { font-size: 13.5px; }
+.opt small { grid-column: 1 / -1; color: var(--muted); font-size: 11.5px; }
+.done { text-align: center; padding: 18px 8px 6px; }
+.tick { width: 58px; height: 58px; border-radius: 50%; margin: 0 auto 10px; display: grid; place-items: center; background: color-mix(in srgb, var(--ok) 15%, transparent); color: var(--ok); font-size: 28px; font-weight: 900; animation: pop .45s cubic-bezier(.2,.9,.3,1.4) both; }
+@keyframes pop { from { transform: scale(.4); opacity: 0; } to { transform: none; opacity: 1; } }
+.done h5 { margin: 0 0 4px; font-size: 17px; }
+
+/* ---------- Booking ---------- */
+.tpl { display: grid; gap: 6px; }
+.tpl button { display: flex; align-items: center; gap: 10px; text-align: left; border: 1px solid var(--line); background: var(--paper); border-radius: 12px; padding: 9px 11px; cursor: pointer; font-size: 13px; }
+.tpl button .ti { width: 30px; height: 30px; border-radius: 9px; background: var(--well); display: grid; place-items: center; font-size: 15px; flex: 0 0 auto; }
+.tpl button small { display: block; color: var(--muted); font-size: 11px; }
+.tpl button[aria-pressed="true"] { border-color: var(--sea); box-shadow: 0 0 0 1px var(--sea) inset; }
+.tpl button[aria-pressed="true"] .ti { background: var(--sea); color: var(--paper); }
+.sails { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.sail { text-align: left; border: 1px solid var(--line); background: var(--paper); border-radius: 12px; padding: 8px 9px; cursor: pointer; display: grid; gap: 1px; }
+.sail .st { font-weight: 800; font-size: 15px; font-variant-numeric: tabular-nums; }
+.sail .sp { font-size: 11.5px; font-weight: 600; }
+.sail .av { font-size: 10.5px; color: var(--muted); }
+.sail[aria-pressed="true"] { border-color: var(--sea); background: var(--sea-soft); box-shadow: 0 0 0 1px var(--sea) inset; }
+.sail[disabled] { cursor: not-allowed; opacity: .5; }
+.sail .av.ok { color: var(--ok); } .sail .av.few { color: var(--warn); } .sail .av.no { color: var(--bad); }
+.sail.chg-s .sp { color: var(--warn); }
+.fare { display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; padding: 8px 10px; background: var(--well); border-radius: 10px; }
+
+/* ---------- Boarding pass ---------- */
+.pass { border-radius: 18px; overflow: hidden; border: 1px solid var(--line); background: var(--paper); box-shadow: 0 8px 22px rgba(0,0,0,.08); }
+.pass .top { background: linear-gradient(135deg, var(--sea), color-mix(in srgb, var(--sea) 70%, #000)); color: #fff; padding: 12px 14px; }
+.pass .route { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
+.pass .route div b { display: block; font-size: 24px; letter-spacing: .02em; line-height: 1; }
+.pass .route div small { font-size: 10.5px; opacity: .85; }
+.pass .route .arr { font-size: 18px; opacity: .8; }
+.pass .meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 10px 14px; border-bottom: 1px dashed var(--line); position: relative; }
+.pass .meta div small { display: block; font-size: 9.5px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 700; }
+.pass .meta div b { font-size: 14px; }
+.pass .qr { display: grid; place-items: center; padding: 12px; gap: 4px; }
+.pass .qr svg { width: 128px; height: 128px; background: #fff; padding: 6px; border-radius: 8px; }
+.steps { display: grid; gap: 0; }
+.step { display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; align-items: center; padding: 6px 0; position: relative; }
+.step .dt { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--line); background: var(--paper); margin: 0 auto; position: relative; z-index: 1; }
+.step:not(:last-child)::after { content: ""; position: absolute; left: 10px; top: 22px; bottom: -8px; width: 2px; background: var(--line); }
+.step.on .dt { border-color: var(--ok); background: var(--ok); }
+.step.now .dt { border-color: var(--sea); background: var(--paper); box-shadow: 0 0 0 4px color-mix(in srgb, var(--sea) 20%, transparent); }
+.step.on:not(:last-child)::after { background: var(--ok); }
+.step b { font-size: 13px; }
+.step small { font-size: 11px; color: var(--muted); }
+
+/* ---------- Visitor ---------- */
+.vtabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.vtabs::-webkit-scrollbar { display: none; }
+.vtabs button { flex: 0 0 auto; border: 0; background: var(--well); border-radius: 999px; padding: 5px 11px; font-size: 12px; font-weight: 650; cursor: pointer; color: var(--muted); }
+.vtabs button[aria-selected="true"] { background: var(--ink); color: var(--paper); }
+.vtabs button:focus-visible { outline: 2px solid var(--sea); outline-offset: 2px; }
+.map svg { width: 100%; height: auto; display: block; border-radius: 12px; background: var(--sea-soft); }
+.map text { font-family: inherit; fill: var(--ink); }
+.plan { display: grid; gap: 0; }
+.plan div { display: grid; grid-template-columns: 52px 1fr; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 12.5px; }
+.plan div:last-child { border-bottom: 0; }
+.plan b { font-variant-numeric: tabular-nums; }
+.plan .f { color: var(--sea); font-weight: 650; }
+.vlist { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 12.5px; }
+
+
+/* Dialog */
+
+.gains { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; margin: 22px 0 0; }
+.gain { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; box-shadow: var(--shadow); }
+.gain h2 { font-size: 20px; margin: 0; }
+.gain ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 15px; }
+footer { padding: 32px 0 56px; color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); margin-top: 40px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+@media (max-width: 420px) {
+  .backdrop { padding: 20px 6px; }
+  .phone { --pw: 296px; }
+}
+
+/* ---------- Chapter B: layout ---------- */
+.wrap { max-width: 1240px; padding: 0 clamp(16px, 2.4vw, 36px); }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+.ico { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+header.hero { display: grid; grid-template-columns: 1.15fr .85fr; gap: 36px; align-items: center; padding-top: clamp(28px, 6vh, 64px); padding-bottom: clamp(24px, 4vh, 44px); }
+.hero h1 { font-size: clamp(36px, 5vw, 64px); line-height: 1.02; letter-spacing: -.025em; }
+.hero h1 em { font-style: normal; color: var(--ok); }
+/* The opening picture: the moment the news reaches a passenger */
+.hero-phone { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.carry { background: var(--paper); border-color: var(--line); align-self: center; }
+.carry ul { margin: 0; padding-left: 20px; display: grid; gap: 8px; }
+
+
+section.wrap { padding-top: clamp(48px, 8vh, 80px); padding-bottom: 8px; }
+#spread { padding-bottom: clamp(48px, 8vh, 80px); }  /* breathing room before the closing band */
+.sec-n { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }
+.sec-n .num { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--ink); color: var(--page); font-size: 14px; letter-spacing: 0; }
+.sec-n .badge { margin-left: 4px; }
+h2 { font-size: clamp(26px, 3.4vw, 38px); letter-spacing: -.02em; line-height: 1.1; margin-bottom: 8px; }
+.sub { font-size: 17px; }
+
+.gains { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin: 0; }
+@media (max-width: 1000px) { .gains { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .gains { grid-template-columns: minmax(0, 1fr); } }
+.gain { padding: 18px 20px; border-radius: 18px; gap: 10px; }
+.gh { display: flex; align-items: center; gap: 12px; }
+.gi { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-size: 22px; background: var(--sea-soft); color: var(--sea); flex: none; }
+.gain h3 { margin: 0; font-size: 19px; }
+.gain ul { list-style: none; padding: 0; gap: 7px; }
+.gain li { padding-left: 22px; position: relative; }
+.gain li::before { content: "✓"; position: absolute; left: 0; color: var(--ok); font-weight: 800; }
+/* Who gains: the close of B, on a dark band of its own that fills the screen, like the close of C */
+.closing { --fbg: #14202b; --fink: #eef2f5; --fline: rgba(238,242,245,.16); --fok: #4fbf92;
+  min-height: 100vh; display: grid; align-content: center; padding: clamp(48px, 9vh, 96px) 0; background: var(--fbg); color: var(--fink); border-top: 3px solid var(--fok); }
+.closing > .wrap { width: 100%; }
+.closing .sec-n { color: var(--fok); }
+.closing h2 { font-size: clamp(34px, 5vw, 64px); line-height: 1.04; letter-spacing: -.025em; margin: 10px 0 32px; }
+.closing .gain { background: rgba(255,255,255,.04); border-color: var(--fline); box-shadow: none; }
+.closing .gain li { color: color-mix(in srgb, var(--fink) 82%, transparent); }
+.closing .gain li::before, .closing .gi { color: var(--fok); }
+.closing .gi { background: color-mix(in srgb, var(--fok) 16%, transparent); }
+
+
+.backdrop { border-radius: 26px; }
+.cap .nm { font-size: 18px; }
+
+
+/* Page navigation: one quiet line, the same on every page */
+.pager { position: fixed; right: clamp(16px, 2.4vw, 36px); bottom: 14px; z-index: 20; display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); }
+.pager a, .pager span[aria-disabled] { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); background: var(--paper); color: var(--ink);
+  display: grid; place-items: center; font-size: 17px; line-height: 1; text-decoration: none; box-shadow: 0 4px 14px rgba(10,16,22,.08); }
+.pager span[aria-disabled] { opacity: .35; }
+.pager .hint { margin: 0; font-size: 13px; color: var(--muted); }
+@media (max-width: 860px) { .pager .hint { display: none; } }
+@media (max-width: 600px) { .pager { right: 10px; bottom: 10px; gap: 6px; } }
+@media (hover: none) { .pager .hint { display: none; } }
+
+@media (max-width: 980px) {
+  header.hero { grid-template-columns: 1fr; }
+  .hero-txt { text-align: center; } .hero-txt .lede { margin-left: auto; margin-right: auto; }
+}
+@media (max-width: 600px) {
+  section.wrap { padding-top: 44px; }
+  .closing { padding-bottom: 0; }
+}
+/* Header: the same on every page of the presentation */
+.chapters { display: flex; align-items: stretch; flex-wrap: wrap; gap: 0 clamp(14px, 2vw, 26px); min-height: 52px; padding: 0 clamp(16px, 2.4vw, 36px);
+  background: var(--page); border-bottom: 1px solid var(--line); font: 14px/1.2 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; position: relative; z-index: 30; }
+.chapters a { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); text-decoration: none; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px; padding-top: 2px; }
+.chapters a:hover, .chapters a:focus-visible { color: var(--ink); }
+.chapters a b { font-weight: 800; color: var(--ch); }
+.chapters a[aria-current="page"] { color: var(--ink); font-weight: 600; border-bottom-color: var(--ch); }
+.chapters [data-ch="a"] { --ch: var(--warn); } .chapters [data-ch="b"] { --ch: var(--ok); } .chapters [data-ch="c"] { --ch: var(--core); }
+.chapters .home { --ch: var(--core); color: var(--ink); font-weight: 700; margin-right: clamp(0px, 1.6vw, 22px); }
+.chapters .home i { width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--core); background: radial-gradient(circle, var(--core) 0 2.5px, transparent 3px); }
+.chapters .disc { margin-left: auto; align-self: center; font-size: 12px; color: var(--muted); }
+@media (max-width: 760px) {
+  .chapters { padding-top: 6px; padding-bottom: 6px; row-gap: 4px; }
+  .chapters a { padding-bottom: 4px; }
+  .chapters a:not(.home):not([aria-current]) span { display: none; }
+  .chapters .disc { display: none; }   /* phones: it does not fit the bar; .disc-end carries it */
+}
+.disc-end { display: none; margin: 28px 0 0; font-size: 11px; line-height: 1.4; text-align: center; opacity: .6; }
+@media (max-width: 760px) { .disc-end { display: block; margin: 32px 76px 0; padding-bottom: 22px; } }   /* phones: the disclaimer leaves the bar for the very end of the page, on the line of the arrows, centred clear of them */
+@media (max-width: 400px) {
+  .chapters { column-gap: 12px; }
+  .chapters .home { font-size: 0; gap: 0; }   /* the ring alone takes you home: room for the chapter's name and EN | IS */
+}
+/* Moving between pages: content rises in, fades out on leaving; header and controls stay put */
+@keyframes page-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+body > :not(.chapters):not(.pager):not(.foot):not(script) { animation: page-in .32s ease-out; }
+html.leaving body > :not(.chapters):not(.pager):not(.foot):not(script) { opacity: 0; transition: opacity .14s ease-in; }
+@media (prefers-reduced-motion: reduce) { body > * { animation: none !important; } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-ship" viewBox="0 0 24 24"><path d="M3 15l2 4h14l2-4z"/><path d="M6 15V10h12v5M9 10V6h6v4"/><path d="M2 21c2 0 2-1 4-1s2 1 4 1 2-1 4-1 2 1 4 1 2-1 4-1"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></symbol>
+  <symbol id="i-bag" viewBox="0 0 24 24"><rect x="5" y="7" width="14" height="13" rx="3"/><path d="M9 7V5a3 3 0 0 1 6 0v2M5 12h14"/></symbol>
+  <symbol id="i-shop" viewBox="0 0 24 24"><path d="M4 9l1.5-5h13L20 9"/><path d="M4 9a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0"/><path d="M5 11v9h14v-9M10 20v-5h4v5"/></symbol>
+</svg>
+<nav class="chapters" aria-label="Presentation">
+  <a class="home" href="../index.html"><i aria-hidden="true"></i>One record</a>
+  <a data-ch="a" href="a-problem.html"><b>A</b><span>The problem</span></a>
+  <a data-ch="b" href="b-solution.html" aria-current="page"><b>B</b><span>The solution</span></a>
+  <a data-ch="c" href="c-core.html"><b>C</b><span>Data in the core</span></a>
+  <span class="disc">Concept material — not an official Herjólfur service</span>
+</nav>
+
+<header class="hero wrap" id="top">
+  <div class="hero-txt">
+    <div class="eyebrow">B · The solution</div>
+    <h1>One record,<br><em>many readers.</em></h1>
+    <p class="lede">When a sailing moves, the news finds the passenger: in their own language, with an answer one tap away.</p>
+  </div>
+  <div class="hero-phone">
+    <div class="phone reader" id="dev-alert">
+      <div class="screen">
+        <div class="lock" id="lock">
+          <span class="exl">EXAMPLE</span>
+          <div class="ldate">Thursday</div>
+          <div class="ltime">14:01</div>
+          <button type="button" class="notif" id="notif" aria-label="Notification: your 17:00 has moved. Open">
+            <div class="nh"><span class="ai" aria-hidden="true">⛴</span>FERRY · now</div>
+            <div class="nt">Your 17:00 has moved</div>
+            <div class="nb">Now 16:00 from Vestmannaeyjar to Þorlákshöfn. Tap to accept or choose.</div>
+          </button>
+          <div class="hint">Tap the notification</div>
+        </div>
+        <div class="sbar"><span>14:01</span><span class="ic"><span class="sig" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="bat" aria-hidden="true"></span></span></div>
+        <div class="app" tabindex="0" aria-label="Booking change screen, scrollable">
+          <div class="appbar"><div><h4 id="al-h">Your booking changed</h4><span class="who">ABC123 · 2 adults · 1 car</span></div><span class="ex">EXAMPLE</span></div>
+          <div class="pad" id="alert-body" aria-live="polite"></div>
+        </div>
+        <div class="homebar"></div>
+      </div>
+    </div>
+    <button class="ghost" type="button" id="alert-reset">↺ Replay notification</button>
+  </div>
+</header>
+
+<main>
+<!-- ============ 1. Residents ============ -->
+<section class="wrap" id="residents" aria-labelledby="h-residents">
+  <div class="sec-n"><span class="num">1</span>Residents</div>
+  <h2 id="h-residents">From the alert to the gangway</h2>
+  <p class="sub">Rebook with one tap, family and car already saved. The boarding pass follows the change.</p>
+  <div class="row">
+    <figure class="shot" style="margin:0">
+      <div class="backdrop">
+        <div class="phone reader" id="dev-book">
+          <div class="screen">
+            <div class="sbar"><span>14:05</span><span class="ic"><span class="sig" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="bat" aria-hidden="true"></span></span></div>
+            <div class="app" tabindex="0" aria-label="Resident booking screen, scrollable">
+              <div class="appbar"><div><h4>Book a crossing</h4><span class="who">Resident account</span></div><span class="ex">EXAMPLE</span></div>
+              <div class="pad" id="book-body"></div>
+            </div>
+            <div class="homebar"></div>
+          </div>
+        </div>
+      </div>
+      <figcaption class="cap">
+        <span class="nm">👤 Resident account, one-tap booking</span>
+        <p class="what">Family and cars saved; only the sailings that fit appear.</p>
+      </figcaption>
+    </figure>
+
+    <figure class="shot" style="margin:0">
+      <div class="backdrop">
+        <div class="phone reader" id="dev-pass">
+          <div class="screen">
+            <div class="sbar"><span>15:05</span><span class="ic"><span class="sig" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="bat" aria-hidden="true"></span></span></div>
+            <div class="app" tabindex="0" aria-label="Boarding pass screen, scrollable">
+              <div class="appbar"><div><h4>Boarding pass</h4><span class="who">Saved offline</span></div><span class="ex">EXAMPLE</span></div>
+              <div class="pad" id="pass-body"></div>
+            </div>
+            <div class="homebar"></div>
+          </div>
+        </div>
+      </div>
+      <figcaption class="cap">
+        <span class="nm">▣ Check-in and boarding pass</span>
+        <p class="what">A code, a lane, and the steps as they happen.</p>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ============ 2. Visitors ============ -->
+<section class="wrap" id="visit" aria-labelledby="h-visit">
+  <div class="sec-n"><span class="num">2</span>Visitors</div>
+  <h2 id="h-visit">A crossing they can manage alone</h2>
+  <p class="sub">No account needed: today’s port, a day on the island that fits the sailings, and a way out if the weather turns.</p>
+  <div class="row">
+    <figure class="shot" style="margin:0">
+      <div class="backdrop">
+        <div class="phone reader" id="dev-visit" translate="no">
+          <div class="screen">
+            <div class="sbar"><span>14:05</span><span class="ic"><span class="sig" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="bat" aria-hidden="true"></span></span></div>
+            <div class="app" tabindex="0" aria-label="Visitor mode screen, scrollable">
+              <div class="appbar"><div><h4>Visiting the island</h4><span class="who">No account needed · English</span></div><span class="ex">EXAMPLE</span></div>
+              <div class="pad">
+                <div class="vtabs" role="tablist" aria-label="Visitor guide" id="vtabs">
+                  <button type="button" role="tab" aria-selected="true" data-v="how">How it works</button>
+                  <button type="button" role="tab" aria-selected="false" data-v="today">Today</button>
+                  <button type="button" role="tab" aria-selected="false" data-v="trip">Day trip</button>
+                  <button type="button" role="tab" aria-selected="false" data-v="weather">If weather turns</button>
+                </div>
+                <div id="vpanel" role="tabpanel" aria-live="polite"></div>
+              </div>
+            </div>
+            <div class="homebar"></div>
+          </div>
+        </div>
+      </div>
+      <figcaption class="cap">
+        <span class="nm">✦ Visitor mode and day trip</span>
+        <p class="what">The crossing in plain words, today’s state and a ready day trip.</p>
+      </figcaption>
+    </figure>
+    <div class="explain carry">
+      <h3>What the same channel can carry</h3>
+      <p>Once the ferry speaks to its passengers directly, more can travel with the news.</p>
+      <ul>
+        <li><b>Cabins and berths</b> on the long route, booked with the crossing</li>
+        <li><b>The galley on board</b>: see what is served, order ahead</li>
+        <li><b>Island tours and stays</b>, timed to the sailings</li>
+        <li><b>Offers from island businesses</b>, for the people already on their way</li>
+      </ul>
+      <small>Ideas to shape with Herjólfur and island partners.</small>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3. The screens, for everyone else ============ -->
+<section class="wrap" id="spread" aria-labelledby="h-spread">
+  <div class="sec-n"><span class="num">3</span>Everyone else</div>
+  <h2 id="h-spread">The board, in the pocket and on the wall</h2>
+  <p class="sub">For those without the app: every sailing with its port, its time, and whether it is confirmed or still a forecast.</p>
+  <div class="row duo">
+    <figure class="shot" style="margin:0">
+      <div class="backdrop">
+        <div class="phone reader" id="dev-board">
+          <div class="screen">
+            <div class="sbar"><span>14:05</span><span class="ic"><span class="sig" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="bat" aria-hidden="true"></span></span></div>
+            <div class="app" tabindex="0" aria-label="Departure board screen, scrollable">
+              <div class="appbar"><div><h4>Sailings</h4><span class="who">Vestmannaeyjar ⇄ mainland</span></div><span class="ex">EXAMPLE</span></div>
+              <div class="pad">
+                <div class="note"><b>Afternoon moved to Þorlákshöfn · confirmed</b>16:00 out, 19:45 back. Next decision: tomorrow, 06:00 at the latest.</div>
+                <div class="seg daytabs" role="group" aria-label="Day" id="board-day">
+                  <button type="button" data-v="today" aria-pressed="true">Today</button>
+                  <button type="button" data-v="tomorrow" aria-pressed="false">Tomorrow</button>
+                  <button type="button" data-v="sat" aria-pressed="false">Saturday</button>
+                </div>
+                <div class="seg" role="group" aria-label="Direction" id="board-dir">
+                  <button type="button" data-v="out" aria-pressed="true">From the island</button>
+                  <button type="button" data-v="in" aria-pressed="false">To the island</button>
+                </div>
+                <div id="board-rows" aria-live="polite"></div>
+                <div class="legend2" aria-label="Legend">
+                  <span class="pill p-confirmed">Confirmed</span><span class="pill p-forecast">Forecast</span><span class="pill p-changed">Moved</span><span class="pill p-cancelled">Cancelled</span><span class="pill p-timetable">Timetable</span>
+                </div>
+                <div class="note sea"><b>Also in today’s decision</b>Passengers are advised not to leave vehicles at either mainland port at this time of year. For the sleeping facilities, bring your own bedding.</div>
+                <div class="upd"><span class="live" aria-hidden="true"></span>Updated 14:00 · from the Sailing Record</div>
+              </div>
+            </div>
+            <div class="homebar"></div>
+          </div>
+        </div>
+      </div>
+      <figcaption class="cap">
+        <span class="nm">▤ Departure board</span>
+        <p class="what">Per sailing, like an airport board; light enough for a weak signal.</p>
+      </figcaption>
+    </figure>
+
+    <figure class="shot" style="margin:0">
+      <div class="backdrop" style="padding:32px 16px 22px; flex-direction:column">
+        <div class="tv reader" id="dev-tv">
+          <div class="tv-bezel">
+            <div class="tv-screen" role="img" aria-label="Terminal screen showing departures from Vestmannaeyjar" id="tv-screen">
+              <div class="tv-head">
+                <div class="tv-title tv-fade" id="tv-title" translate="no">Departures<small>Vestmannaeyjar · ferry terminal</small></div>
+                <div class="tv-right"><div class="tv-clock" id="tv-clock">14:05</div><span class="tv-ex">EXAMPLE</span></div>
+              </div>
+              <div class="tv-grid tv-fade" id="tv-grid" translate="no"></div>
+              <div class="tv-foot tv-fade" id="tv-foot" translate="no"></div>
+            </div>
+          </div>
+          <div class="tv-stand" aria-hidden="true"></div>
+        </div>
+        <div class="tv-controls">
+          <div class="seg" role="group" aria-label="Screen language" id="tv-lang" style="width:auto">
+            <button type="button" data-v="en" aria-pressed="true">EN</button>
+            <button type="button" data-v="is" aria-pressed="false">IS</button>
+            <button type="button" data-v="pl" aria-pressed="false">PL</button>
+          </div>
+          <button class="ghost" type="button" id="tv-cycle" aria-pressed="true">⏸ Pause cycling</button>
+        </div>
+      </div>
+      <figcaption class="cap">
+        <span class="nm">▤ Terminal and town screens</span>
+        <p class="what">The same board at the terminal, in town or in a hotel lobby, in Icelandic, English and Polish.</p>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+</main>
+
+<!-- ============ Who gains: the close of B, on its own band, and the way into C ============ -->
+<section class="closing" id="gains" aria-labelledby="h-gains">
+  <div class="wrap">
+    <div class="sec-n">Who gains</div>
+    <h2 id="h-gains">Four readers of the same decision</h2>
+    <div class="gains">
+      <article class="gain">
+        <div class="gh"><span class="gi"><svg class="ico"><use href="#i-ship"/></svg></span><h3>Herjólfur</h3></div>
+        <ul><li>Less copying on bad days</li><li>Fewer reasons to call the office</li><li>A record of every decision, and how fast it reached people</li></ul>
+      </article>
+      <article class="gain">
+        <div class="gh"><span class="gi"><svg class="ico"><use href="#i-home"/></svg></span><h3>Residents</h3></div>
+        <ul><li>One answer, in Icelandic, English or Polish</li><li>How sure it is, and when the next decision comes</li><li>Told directly when their sailing moves</li></ul>
+      </article>
+      <article class="gain">
+        <div class="gh"><span class="gi"><svg class="ico"><use href="#i-bag"/></svg></span><h3>Visitors</h3></div>
+        <ul><li>A crossing they can understand alone</li><li>Today’s port, told before they set out</li><li>A plan, with a way out if the weather turns</li></ul>
+      </article>
+      <article class="gain">
+        <div class="gh"><span class="gi"><svg class="ico"><use href="#i-shop"/></svg></span><h3>Island businesses</h3></div>
+        <ul><li>Hotels, tours and shift planners read a reliable source</li><li>No re-typing the news</li><li>Guests who know which port to drive to</li></ul>
+      </article>
+    </div>
+    <p class="disc-end">Concept material — not an official Herjólfur service</p>
+  </div>
+</section>
+
+
+
+<nav class="pager" aria-label="Pages">
+  <span class="hint" title="The browser’s full screen stays on from page to page">F11 full screen</span>
+  <a href="a-problem.html#with" data-step="-1" title="Previous" aria-label="Previous">←</a>
+  <a href="c-core.html" data-step="1" title="Next" aria-label="Next">→</a>
+</nav>
+
+
+<script>
+(function () {
+  "use strict";
+  var P = { VEY: "Vestmannaeyjar", LAN: "Landeyjahöfn", THO: "Þorlákshöfn" };
+  var SITE = window.I18N ? I18N.lang : "en";   // the screens that speak several languages open in the page's own
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function press(group, btn) { $$("button", group).forEach(function (b) { b.setAttribute("aria-pressed", b === btn); }); }
+  function segBind(group, fn) {
+    $$("button", group).forEach(function (b) { b.addEventListener("click", function () { press(group, b); fn(b.dataset.v); }); });
+  }
+
+  /* ---------------- Example day, as one record ---------------- */
+  // st: sailed | confirmed | moved | cancelled | forecast | pending | timetable
+  var DAY = {
+    today: {
+      out: [
+        ["07:00", "LAN", "sailed"], ["09:30", "LAN", "sailed"], ["12:00", "LAN", "sailed"],
+        ["14:30", "LAN", "cancelled"],
+        ["16:00", "THO", "moved", "Replaces the 17:00 to Landeyjahöfn"],
+        ["19:30", "LAN", "cancelled"], ["22:00", "LAN", "cancelled"]
+      ],
+      "in": [
+        ["08:15", "LAN", "sailed"], ["10:45", "LAN", "sailed"], ["13:15", "LAN", "sailed"],
+        ["15:45", "LAN", "cancelled"],
+        ["18:15", "LAN", "cancelled"],
+        ["19:45", "THO", "moved", "Replaces the 20:45 from Landeyjahöfn"],
+        ["23:15", "LAN", "cancelled"]
+      ]
+    },
+    tomorrow: {
+      out: [["07:00", "THO", "forecast", "Port to be confirmed by 06:00"], ["later", "", "summary", "Other sailings: decided at 06:00"]],
+      "in": [["10:45", "THO", "forecast", "Port to be confirmed by 06:00"], ["later", "", "summary", "Other sailings: decided at 06:00"]]
+    },
+    sat: {
+      out: ["07:00", "09:30", "12:00", "14:30", "17:00", "19:30", "22:00"].map(function (t) { return [t, "LAN", "timetable"]; }),
+      "in": ["08:15", "10:45", "13:15", "15:45", "18:15", "20:45", "23:15"].map(function (t) { return [t, "LAN", "timetable"]; })
+    }
+  };
+  var PILL = {
+    sailed: ["p-sailed", "Sailed"], confirmed: ["p-confirmed", "Confirmed"], moved: ["p-changed", "Moved"],
+    cancelled: ["p-cancelled", "Cancelled"], forecast: ["p-forecast", "Forecast"], pending: ["p-pending", "To be decided"],
+    timetable: ["p-timetable", "Timetable"]
+  };
+
+  /* ---------------- 1. Phone board ---------------- */
+  var board = { day: "today", dir: "out" };
+  function renderBoard() {
+    var rows = DAY[board.day][board.dir], html = "";
+    rows.forEach(function (r) {
+      if (r[2] === "summary") {
+        html += "<div class='srow summary'><div class='tm'>Later</div><div class='rt'><b>" + esc(r[3]) + "</b><small>The board updates by itself when the decision is entered.</small></div></div>";
+        return;
+      }
+      var from = board.dir === "out" ? "VEY" : r[1], to = board.dir === "out" ? r[1] : "VEY";
+      var pill = PILL[r[2]];
+      var sub = r[3] || "";
+      html += "<div class='srow is-" + (r[2] === "moved" ? "changed" : r[2]) + "'><div class='tm'>" + r[0] + "</div><div class='rt'><b>" +
+        (board.dir === "out" ? P[to] : P[from]) + "</b>" + (sub ? "<small>" + esc(sub) + "</small>" : "") + "</div><span class='pill " + pill[0] + "'>" + pill[1] + "</span></div>";
+    });
+    $("#board-rows").innerHTML = html;
+  }
+  segBind($("#board-day"), function (v) { board.day = v; renderBoard(); });
+  segBind($("#board-dir"), function (v) { board.dir = v; renderBoard(); });
+  renderBoard();
+
+  /* ---------------- 2. Terminal screen ---------------- */
+  var TV = {
+    en: { title: "Departures", h: ["Time", "To", "Status", "Remarks"], conf: "Confirmed", chg: "Moved", cx: "Cancelled", fc: "Forecast",
+      r1: "Replaces the 17:00 to Landeyjahöfn", r2: "Port confirmed by 06:00", tom: "Tomorrow",
+      foot: "<b>Next decision:</b> tomorrow, 06:00 at the latest · Do not leave vehicles at a mainland port at this time of year", sub: "Vestmannaeyjar · ferry terminal" },
+    is: { title: "Brottfarir", h: ["Tími", "Til", "Staða", "Athugasemd"], conf: "Staðfest", chg: "Færð", cx: "Fellur niður", fc: "Spá",
+      r1: "Í stað ferðarinnar kl. 17:00 til Landeyjahafnar", r2: "Höfn verður staðfest fyrir kl. 06:00", tom: "Á morgun",
+      foot: "<b>Næsta ákvörðun:</b> á morgun, eigi síðar en kl. 06:00 · Skiljið ekki bíla eftir í höfnum á fastalandinu á þessum árstíma", sub: "Vestmannaeyjar · ferjuhöfn" },
+    pl: { title: "Odpływy", h: ["Godzina", "Do", "Status", "Uwagi"], conf: "Potwierdzony", chg: "Zmiana", cx: "Odwołany", fc: "Prognoza",
+      r1: "Zamiast rejsu o 17:00 do Landeyjahöfn", r2: "Port potwierdzony do 06:00", tom: "Jutro",
+      foot: "<b>Następna decyzja:</b> jutro, najpóźniej o 06:00 · O tej porze roku nie zostawiaj samochodu w porcie na stałym lądzie", sub: "Vestmannaeyjar · terminal promowy" }
+  };
+  var tvLang = SITE, tvTimer = null;
+  function renderTV(l) {
+    var L = TV[l];
+    var rows = [
+      ["14:30", P.LAN, "cancelled", L.cx, ""],
+      ["16:00", P.THO, "changed", L.chg, L.r1],
+      ["19:30", P.LAN, "cancelled", L.cx, ""],
+      ["22:00", P.LAN, "cancelled", L.cx, ""],
+      ["07:00", P.THO, "forecast", L.fc, L.r2, L.tom]
+    ];
+    var h = "<div class='tv-r h'><span>" + L.h.join("</span><span>") + "</span></div>";
+    rows.forEach(function (r) {
+      h += "<div class='tv-r" + (r[2] === "cancelled" ? " cx" : "") + "'><span class='t'>" + (r[5] ? "<span class='tom'>" + r[5] + "</span>" : "") + r[0] +
+        "</span><span class='d'>" + r[1] + "</span><span><span class='tv-st " + r[2] + "'>" + r[3] + "</span></span><span class='rm'>" + r[4] + "</span></div>";
+    });
+    $("#tv-title").innerHTML = L.title + "<small>" + L.sub + "</small>";
+    $("#tv-grid").innerHTML = h;
+    $("#tv-foot").innerHTML = L.foot;
+    press($("#tv-lang"), $("#tv-lang button[data-v='" + l + "']"));
+  }
+  function swapTV(l) {
+    var parts = ["#tv-title", "#tv-grid", "#tv-foot"].map(function (s) { return $(s); });
+    if (reduce) { tvLang = l; renderTV(l); return; }
+    parts.forEach(function (p) { p.classList.add("out"); });
+    setTimeout(function () { tvLang = l; renderTV(l); parts.forEach(function (p) { p.classList.remove("out"); }); }, 350);
+  }
+  function startCycle() {
+    stopCycle();
+    tvTimer = setInterval(function () { var order = ["en", "is", "pl"]; swapTV(order[(order.indexOf(tvLang) + 1) % 3]); }, 6000);
+    var b = $("#tv-cycle"); b.textContent = "⏸ Pause cycling"; b.setAttribute("aria-pressed", "true");
+  }
+  function stopCycle() {
+    if (tvTimer) clearInterval(tvTimer); tvTimer = null;
+    var b = $("#tv-cycle"); b.textContent = "▶ Cycle languages"; b.setAttribute("aria-pressed", "false");
+  }
+  segBind($("#tv-lang"), function (v) { stopCycle(); swapTV(v); });
+  $("#tv-cycle").addEventListener("click", function () { tvTimer ? stopCycle() : startCycle(); });
+  renderTV(SITE);
+  if (reduce) stopCycle(); else startCycle();
+
+  /* ---------------- 3. Passenger alert ---------------- */
+  var AL = {
+    en: { h: "Your booking changed", was: "Was", now: "Now", conf: "Confirmed", why: "Reason: sea conditions at Landeyjahöfn",
+      acc: "Accept the 16:00", oth: "See other options", ref: "Refund or credit", note: "Leaves one hour earlier, to Þorlákshöfn. Your seats and car space are already held on the 16:00." },
+    is: { h: "Breyting á bókun þinni", was: "Áður", now: "Nú", conf: "Staðfest", why: "Ástæða: sjólag við Landeyjahöfn",
+      acc: "Samþykkja ferðina kl. 16:00", oth: "Aðrir valkostir", ref: "Endurgreiðsla eða inneign", note: "Fer klukkustund fyrr, til Þorlákshafnar. Sæti og pláss fyrir bílinn eru þegar frátekin í ferðinni kl. 16:00." },
+    pl: { h: "Twoja rezerwacja się zmieniła", was: "Było", now: "Teraz", conf: "Potwierdzone", why: "Powód: warunki na morzu przy Landeyjahöfn",
+      acc: "Akceptuję rejs o 16:00", oth: "Inne opcje", ref: "Zwrot lub voucher", note: "Odpływa godzinę wcześniej, do Þorlákshöfn. Miejsca i miejsce na samochód są już zarezerwowane na rejs o 16:00." }
+  };
+  var al = { view: "detail", lang: SITE, choice: null };
+  function renderAlert() {
+    var b = $("#alert-body"), L = AL[al.lang], html = "";
+    $("#al-h").translate = al.view !== "detail";
+    $("#al-h").textContent = al.view === "detail" ? L.h : al.view === "done" ? "All set" : al.view === "options" ? "Other options" : "Refund or credit";
+    if (al.view === "detail") {
+      html += "<div class='lang' role='group' aria-label='Message language'><span class='tiny' style='margin-right:auto'>Sent in the language you chose</span>" +
+        ["en", "is", "pl"].map(function (k) { return "<button type='button' data-l='" + k + "' aria-pressed='" + (k === al.lang) + "'>" + k.toUpperCase() + "</button>"; }).join("") + "</div>";
+      html += "<div class='chg' translate='no'><div class='was'><span class='k'>" + L.was + "</span><span class='v'><b>17:00</b>Vestmannaeyjar → Landeyjahöfn</span></div>" +
+        "<div class='now'><span class='k'>" + L.now + "</span><span class='v'><b>16:00 <span class='pill p-confirmed' style='vertical-align:2px'>" + L.conf + "</span></b>Vestmannaeyjar → Þorlákshöfn</span></div></div>";
+      html += "<p style='margin:0;font-size:12.5px' translate='no'>" + L.note + "</p>";
+      html += "<div class='tiny'><span translate='no'>" + L.why + "</span> · decided by the master and duty officer, 14:00</div>";
+      html += "<div class='stack' translate='no'><button type='button' class='btn' data-a='accept'>" + L.acc + "</button><button type='button' class='btn sec' data-a='options'>" + L.oth + "</button><button type='button' class='btn line' data-a='refund'>" + L.ref + "</button></div>";
+      html += "<div class='note sea'><b>Travelling with a car?</b>You will arrive at Þorlákshöfn, not Landeyjahöfn.</div>";
+    } else if (al.view === "options") {
+      html += "<p style='margin:0' class='muted'>Sailings with room for 2 adults and 1 car:</p>";
+      html += opt("t16", "Today 16:00 → Þorlákshöfn", "<span class='pill p-confirmed'>Confirmed</span>", "Space for your car · the suggested change");
+      html += opt("m07", "Tomorrow 07:00 → Þorlákshöfn", "<span class='pill p-forecast'>Forecast</span>", "Port confirmed by 06:00 · you will be told");
+      html += opt("wait", "Tomorrow, later sailings", "<span class='pill p-pending'>To be decided</span>", "Join the list; we tell you after the 06:00 decision");
+      html += "<button type='button' class='btn line' data-a='back'>← Back</button>";
+    } else if (al.view === "refund") {
+      html += "<p style='margin:0' class='muted'>Your sailing changed, so you can step back without calling the office.</p>";
+      html += opt("refund", "Refund to your card", "", "Following the operator’s published rules for moved and cancelled sailings");
+      html += opt("credit", "Keep it as credit", "", "Use it for any later crossing");
+      html += "<button type='button' class='btn line' data-a='back'>← Back</button>";
+    } else {
+      var c = al.choice, title, sub;
+      if (c === "t16") { title = "You’re on the 16:00 to Þorlákshöfn"; sub = "Boarding pass updated. Leave in time: the port has changed."; }
+      else if (c === "m07") { title = "Moved to tomorrow 07:00"; sub = "Port is a forecast: Þorlákshöfn. You will get a message by 06:00."; }
+      else if (c === "wait") { title = "You’re on the list"; sub = "We tell you as soon as tomorrow’s sailings are decided."; }
+      else if (c === "refund") { title = "Refund requested"; sub = "You get a receipt by e-mail. Nothing else to do."; }
+      else { title = "Saved as credit"; sub = "It appears in your account for your next booking."; }
+      html += "<div class='done'><div class='tick' aria-hidden='true'>✓</div><h5>" + title + "</h5><p class='muted' style='margin:0;font-size:12.5px'>" + sub + "</p></div>";
+      html += "<div class='card2 tiny'>The office sees this answer at once, along with every other booking on the sailing. No phone call needed.</div>";
+      html += "<button type='button' class='btn line' data-a='back'>Change my mind</button>";
+    }
+    b.innerHTML = html;
+  }
+  function opt(id, t, pill, s) { return "<button type='button' class='opt' data-o='" + id + "'><b>" + t + "</b>" + (pill || "<span></span>") + "<small>" + s + "</small></button>"; }
+  $("#alert-body").addEventListener("click", function (e) {
+    var t = e.target.closest("button"); if (!t) return;
+    if (t.dataset.l) { al.lang = t.dataset.l; renderAlert(); return; }
+    if (t.dataset.o) { al.choice = t.dataset.o; al.view = "done"; renderAlert(); return; }
+    var a = t.dataset.a;
+    if (a === "accept") { al.choice = "t16"; al.view = "done"; }
+    else if (a === "options") al.view = "options";
+    else if (a === "refund") al.view = "refund";
+    else if (a === "back") al.view = "detail";
+    renderAlert();
+    $("#dev-alert .app").scrollTop = 0;
+  });
+  $("#notif").addEventListener("click", function () { $("#lock").classList.add("gone"); setTimeout(function () { var f = $("#alert-body button[data-a='accept']") || $("#alert-body button"); if (f) f.focus({ preventScroll: true }); }, 360); });
+  $("#alert-reset").addEventListener("click", function () {
+    al = { view: "detail", lang: SITE, choice: null }; renderAlert();
+    var lock = $("#lock"), n = $("#notif");
+    lock.classList.remove("gone"); n.style.animation = "none"; void n.offsetWidth; n.style.animation = "";
+  });
+  renderAlert();
+
+  /* ---------------- 4. Resident booking ---------------- */
+  var TPL = [
+    { id: "car", icon: "🚗", t: "Me + car → Landeyjahöfn", s: "Your usual trip", people: ["you"], car: true },
+    { id: "fam", icon: "👨‍👩‍👧", t: "Family weekend → mainland", s: "2 adults, 1 child, car", people: ["you", "partner", "child"], car: true },
+    { id: "foot", icon: "🚶", t: "Just me, on foot", s: "Foot passenger", people: ["you"], car: false }
+  ];
+  var PEOPLE = [["you", "You"], ["partner", "Partner"], ["child", "Child · 8"]];
+  // Availability is invented for the example; port and status come from the record.
+  var BS = {
+    today: [
+      { t: "14:30", to: "LAN", cx: true },
+      { t: "16:00", to: "THO", av: "ok", moved: "was 17:00 to Landeyjahöfn" },
+      { t: "19:30", to: "LAN", cx: true }, { t: "22:00", to: "LAN", cx: true }
+    ],
+    tomorrow: [
+      { t: "07:00", to: "THO", av: "ok", fc: true },
+      { t: "09:30", to: "LAN", pend: true }, { t: "12:00", to: "LAN", pend: true }, { t: "14:30", to: "LAN", pend: true }
+    ],
+    sat: [
+      { t: "07:00", to: "LAN", av: "ok" }, { t: "09:30", to: "LAN", av: "few" }, { t: "12:00", to: "LAN", av: "ok" },
+      { t: "14:30", to: "LAN", av: "nocar" }, { t: "17:00", to: "LAN", av: "ok" }, { t: "19:30", to: "LAN", av: "ok" }
+    ]
+  };
+  var bk = { tpl: "car", people: ["you"], car: true, day: "today", sail: "16:00", booked: false };
+  function renderBook() {
+    var b = $("#book-body"), html = "";
+    if (bk.booked) {
+      var s = find(bk.day, bk.sail);
+      html += "<div class='done'><div class='tick' aria-hidden='true'>✓</div><h5>Booked: " + dayName(bk.day) + " " + s.t + " → " + P[s.to] + "</h5><p class='muted' style='margin:0;font-size:12.5px'>" +
+        bk.people.length + " " + (bk.people.length === 1 ? "traveller" : "travellers") + (bk.car ? " · car AB 123" : "") + " · resident fare applied</p></div>";
+      html += "<div class='card2 tiny'>Your boarding pass is in the app. If this sailing changes, you will be told, and you can answer with one tap.</div>";
+      html += "<button type='button' class='btn line' data-a='again'>Book another</button>";
+      b.innerHTML = html; return;
+    }
+    html += "<div><p class='lbl'>Your trips</p><div class='tpl' role='group' aria-label='Travel templates'>" + TPL.map(function (t) {
+      return "<button type='button' data-tpl='" + t.id + "' aria-pressed='" + (bk.tpl === t.id) + "'><span class='ti' aria-hidden='true'>" + t.icon + "</span><span><b>" + t.t + "</b><small>" + t.s + "</small></span></button>";
+    }).join("") + "</div></div>";
+    html += "<div><p class='lbl'>Who and what</p><div class='chips' role='group' aria-label='Travellers and vehicle'>" + PEOPLE.map(function (p) {
+      return "<button type='button' class='chipb' data-p='" + p[0] + "' aria-pressed='" + (bk.people.indexOf(p[0]) > -1) + "'>" + p[1] + "</button>";
+    }).join("") + "<button type='button' class='chipb' data-car='1' aria-pressed='" + bk.car + "'>🚗 Car · AB 123</button></div></div>";
+    html += "<div><p class='lbl'>When</p><div class='seg' role='group' aria-label='Day'>" + ["today", "tomorrow", "sat"].map(function (d) {
+      return "<button type='button' data-d='" + d + "' aria-pressed='" + (bk.day === d) + "'>" + dayName(d) + "</button>";
+    }).join("") + "</div></div>";
+    html += "<div><p class='lbl'>Sailings from the island that fit " + (bk.car ? "you and your car" : "you") + "</p><div class='sails'>";
+    BS[bk.day].forEach(function (s) {
+      var dis = s.cx || s.pend || (s.av === "nocar" && bk.car), av, cls = "";
+      if (s.cx) av = "<span class='av no'>Cancelled</span>";
+      else if (s.pend) av = "<span class='av'>Opens after the 06:00 decision</span>";
+      else if (s.av === "nocar") av = bk.car ? "<span class='av no'>No car space</span>" : "<span class='av ok'>Space for you</span>";
+      else if (s.av === "few") av = "<span class='av few'>Few car spaces</span>";
+      else av = "<span class='av ok'>Space for you</span>";
+      if (s.moved) cls = " chg-s";
+      var sp = s.moved ? "→ " + P[s.to] + " · moved" : s.fc ? "→ " + P[s.to] + " · forecast" : "→ " + P[s.to];
+      html += "<button type='button' class='sail" + cls + "' data-s='" + s.t + "' aria-pressed='" + (bk.sail === s.t && !dis) + "'" + (dis ? " disabled" : "") + "><span class='st'>" + s.t + "</span><span class='sp'>" + sp + "</span>" +
+        (s.moved ? "<span class='av'>" + s.moved + "</span>" : "") + av + "</button>";
+    });
+    html += "</div></div>";
+    var sel = find(bk.day, bk.sail), ok = sel && !sel.cx && !sel.pend && !(sel.av === "nocar" && bk.car) && bk.people.length;
+    if (sel && sel.moved && ok) html += "<div class='note' style='font-size:12px'><b>Port changed today</b>Your trip still works: the 16:00 sails to Þorlákshöfn instead.</div>";
+    html += "<div class='fare'><span>✓ Resident fare applied</span><span class='muted'>details saved</span></div>";
+    html += "<button type='button' class='btn' data-a='book'" + (ok ? "" : " disabled") + ">" + (ok ? "Book " + sel.t + " → " + P[sel.to] : "Choose a sailing") + "</button>";
+    html += "<div class='tiny' style='text-align:center'>Availability on this screen is an example.</div>";
+    b.innerHTML = html;
+  }
+  function find(day, t) { return BS[day].filter(function (s) { return s.t === t; })[0]; }
+  function dayName(d) { return d === "today" ? "Today" : d === "tomorrow" ? "Tomorrow" : "Saturday"; }
+  function firstFit() {
+    var f = BS[bk.day].filter(function (s) { return !s.cx && !s.pend && !(s.av === "nocar" && bk.car); });
+    var pref = f.filter(function (s) { return s.moved; })[0] || f[0];
+    bk.sail = pref ? pref.t : null;
+  }
+  $("#book-body").addEventListener("click", function (e) {
+    var t = e.target.closest("button"); if (!t || t.disabled) return;
+    var d = t.dataset;
+    if (d.tpl) { var T = TPL.filter(function (x) { return x.id === d.tpl; })[0]; bk.tpl = T.id; bk.people = T.people.slice(); bk.car = T.car; firstFit(); }
+    else if (d.p) { var i = bk.people.indexOf(d.p); if (i > -1) bk.people.splice(i, 1); else bk.people.push(d.p); bk.tpl = null; }
+    else if (d.car) { bk.car = !bk.car; bk.tpl = null; var cur = find(bk.day, bk.sail); if (!cur || (cur.av === "nocar" && bk.car)) firstFit(); }
+    else if (d.d) { bk.day = d.d; firstFit(); }
+    else if (d.s) { bk.sail = d.s; }
+    else if (d.a === "book") { bk.booked = true; $("#dev-book .app").scrollTop = 0; }
+    else if (d.a === "again") { bk.booked = false; }
+    renderBook();
+  });
+  renderBook();
+
+  /* ---------------- 5. Boarding pass ---------------- */
+  function qr(seed, n) {
+    var s = seed, cells = "", u = 1;
+    function rnd() { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; }
+    function finder(x, y) {
+      return "<rect x='" + x + "' y='" + y + "' width='7' height='7' fill='#111'/><rect x='" + (x + 1) + "' y='" + (y + 1) + "' width='5' height='5' fill='#fff'/><rect x='" + (x + 2) + "' y='" + (y + 2) + "' width='3' height='3' fill='#111'/>";
+    }
+    for (var y = 0; y < n; y++) for (var x = 0; x < n; x++) {
+      var inF = (x < 8 && y < 8) || (x >= n - 8 && y < 8) || (x < 8 && y >= n - 8);
+      if (!inF && rnd() > .52) cells += "<rect x='" + x + "' y='" + y + "' width='" + u + "' height='" + u + "'/>";
+    }
+    return "<svg viewBox='0 0 " + n + " " + n + "' role='img' aria-label='Example boarding code' shape-rendering='crispEdges'><g fill='#111'>" + cells + "</g>" + finder(0, 0) + finder(n - 7, 0) + finder(0, n - 7) + "</svg>";
+  }
+  var QR = qr(20261001, 25);
+  var STEPS = [
+    ["Checked in", "Done from the phone"], ["Lane open", "Vehicle lane 3 · from 15:15"],
+    ["Boarding", "From 15:30"], ["Departs", "16:00 → Þorlákshöfn"]
+  ];
+  var ps = 0;
+  function renderPass() {
+    var html = "<div class='pass'><div class='top'><div style='display:flex;justify-content:space-between;align-items:center;font-size:11.5px;opacity:.9'><span>Today · ABC123</span><span>2 adults · 1 car</span></div>" +
+      "<div class='route'><div><b>VEY</b><small>Vestmannaeyjar</small></div><span class='arr' aria-hidden='true'>⛴ ───→</span><div style='text-align:right'><b>THO</b><small>Þorlákshöfn</small></div></div></div>" +
+      "<div class='meta'><div><small>Departs</small><b>16:00</b></div><div><small>Lane</small><b>3</b></div><div><small>Vehicle</small><b>AB 123</b></div></div>" +
+      "<div class='qr'>" + QR + "<span class='tiny'>" + (ps === 0 ? "Check in to activate the code" : "Show at the lane · example code") + "</span></div></div>";
+    html += "<div class='note' style='font-size:12px'><b>Moved sailing, same pass</b>This pass followed your booking from the 17:00 to the 16:00 automatically.</div>";
+    html += "<div class='steps' aria-label='Boarding steps'>" + STEPS.map(function (s, i) {
+      var cls = i < ps ? "on" : i === ps ? "now" : "";
+      return "<div class='step " + cls + "'><span class='dt' aria-hidden='true'></span><span><b>" + s[0] + "</b><br><small>" + s[1] + "</small></span><span class='tiny'>" + (i < ps ? "✓" : i === ps ? "next" : "") + "</span></div>";
+    }).join("") + "</div>";
+    var label = ["Check in now", "Simulate: lane opens", "Simulate: boarding starts", "Start again"][ps];
+    html += "<button type='button' class='btn" + (ps === 0 ? "" : " sec") + "' id='pass-next'>" + label + "</button>";
+    html += "<div class='tiny'>Not checked in by 15:30? Your car space is offered to the waiting list. <i>Example rule, set by the operator.</i></div>";
+    $("#pass-body").innerHTML = html;
+  }
+  $("#pass-body").addEventListener("click", function (e) {
+    if (!e.target.closest("#pass-next")) return;
+    ps = ps >= 3 ? 0 : ps + 1; renderPass(); var n = $("#pass-next"); if (n) n.focus({ preventScroll: true });
+  });
+  renderPass();
+
+  /* ---------------- 6. Visitor mode ---------------- */
+  var MAP = "<div class='map'><svg viewBox='0 0 260 150' role='img' aria-label='Schematic: the island and the two mainland ports'>" +
+    "<path d='M0 40 C 40 46, 70 52, 100 62 S 170 70, 200 58 S 240 40, 260 36 L260 0 L0 0 Z' fill='var(--paper)' stroke='var(--line)'/>" +
+    "<text x='14' y='22' font-size='9' class='m' fill='var(--muted)'>South coast of Iceland</text>" +
+    "<circle cx='60' cy='50' r='4' fill='var(--muted)'/><text x='22' y='70' font-size='9.5' font-weight='700'>Þorlákshöfn</text>" +
+    "<circle cx='196' cy='59' r='4' fill='var(--muted)'/><text x='170' y='48' font-size='9.5' font-weight='700'>Landeyjahöfn</text>" +
+    "<ellipse cx='180' cy='122' rx='18' ry='9' fill='var(--paper)' stroke='var(--sea)' stroke-width='1.5'/><text x='150' y='145' font-size='9.5' font-weight='700'>Vestmannaeyjar</text>" +
+    "<path d='M180 112 L195 64' stroke='var(--sea)' stroke-width='2' stroke-dasharray='3 3' fill='none'/><text x='196' y='92' font-size='8.5' fill='var(--sea)' font-weight='700'>short crossing</text>" +
+    "<path d='M165 118 C 120 110, 80 90, 62 56' stroke='var(--warn)' stroke-width='2' stroke-dasharray='3 3' fill='none'/><text x='70' y='104' font-size='8.5' fill='var(--warn)' font-weight='700'>long crossing</text>" +
+    "</svg></div>";
+  var VP = {
+    how: MAP +
+      "<p style='margin:0'>The island is reached by ferry from the south coast. <b>Usually from Landeyjahöfn</b>, a short crossing.</p>" +
+      "<p style='margin:0'>When the sea or the harbour does not allow it, the ferry sails <b>from Þorlákshöfn</b>, a longer crossing further west. This is decided per sailing, sometimes during the day.</p>" +
+      "<div class='note sea'><b>This screen always shows the latest decision</b>…and says whether it is confirmed or still a forecast.</div>",
+    today:
+      "<div class='note'><b>This afternoon: from Þorlákshöfn</b>Confirmed. The ferry is running, and the port has changed.</div>" +
+      "<div class='srow'><div class='tm'>15:45</div><div class='rt'><b>Landeyjahöfn → island</b><small>the port changes this afternoon</small></div><span class='pill p-cancelled'>Cancelled</span></div>" +
+      "<div class='srow is-changed'><div class='tm'>19:45</div><div class='rt'><b>Þorlákshöfn → island</b><small>instead of the 20:45 from Landeyjahöfn</small></div><span class='pill p-changed'>Moved</span></div>" +
+      "<div class='card2' style='font-size:12.5px'><b>Same crossing, different port.</b><br><span class='muted'>These sailings can still be booked.</span></div>" +
+      "<button type='button' class='btn'>Book a crossing</button>",
+    trip:
+      "<p style='margin:0'><b>A day on the island</b> <span class='pill p-timetable'>Saturday · timetable</span></p>" +
+      "<div class='plan'>" +
+      "<div><b>08:15</b><span class='f'>Ferry from Landeyjahöfn</span></div>" +
+      "<div><b>Morning</b><span>Walk up Eldfell, the volcano of 1973</span></div>" +
+      "<div><b>Midday</b><span>Lunch by the harbour</span></div>" +
+      "<div><b>Afternoon</b><span>Eldheimar museum and the town</span></div>" +
+      "<div><b>17:00</b><span class='f'>Ferry back to Landeyjahöfn</span></div></div>" +
+      "<button type='button' class='btn'>Book this day trip</button>" +
+      "<div class='tiny'>Tours, food and offers from island businesses could appear here later.</div>",
+    weather:
+      "<ul class='vlist'>" +
+      "<li><b>If your return moves to Þorlákshöfn</b>, you get a message here, and your ticket follows the sailing under the operator’s rules.</li>" +
+      "<li><b>Getting back from Þorlákshöfn</b>: how to reach Reykjavík from there, shown when it matters.</li>" +
+      "<li><b>Came by car?</b> At this time of year, do not leave it at a mainland port: the port may change.</li>" +
+      "<li><b>If the last sailing is cancelled</b>: where to stay on the island tonight.</li></ul>" +
+      "<div class='note sea'><b>The decision stays with the ferry</b>This screen does not predict the weather. It shows what the ferry has decided, and when it will decide next.</div>"
+  };
+  function renderVisit(v) {
+    $("#vpanel").innerHTML = "<div class='stack' style='gap:10px'>" + VP[v] + "</div>";
+    $$("#vtabs button").forEach(function (b) { b.setAttribute("aria-selected", b.dataset.v === v); b.tabIndex = b.dataset.v === v ? 0 : -1; });
+  }
+  $$("#vtabs button").forEach(function (b, i, all) {
+    b.addEventListener("click", function () { renderVisit(b.dataset.v); });
+    b.addEventListener("keydown", function (e) {
+      var k = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0; if (!k) return;
+      var n = all[(i + k + all.length) % all.length]; n.focus(); renderVisit(n.dataset.v);
+    });
+  });
+  renderVisit("how");
+
+})();
+</script>
+<script>
+(function () {
+  // ← → walk the page one section at a time (opening, 1, 2, 3, who gains), then move to the next page;
+  // full screen is the browser’s own (F11), which stays on between pages; keys typed into the page's own controls are left alone
+  var PREV = "a-problem.html#with", NEXT = "c-core.html";
+  var STOPS = ["top", "residents", "visit", "spread", "gains"].map(function (id) { return document.getElementById(id); });
+  var smooth = !window.matchMedia("(prefers-reduced-motion: reduce)").matches, aim = null, timer;
+  function current() {
+    if (aim !== null) return aim;
+    if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2) return STOPS.length - 1;
+    var i = 0;
+    STOPS.forEach(function (el, k) { if (el.getBoundingClientRect().top <= 8) i = k; });
+    return i;
+  }
+  function step(d) {
+    var i = current() + d;
+    if (i < 0) { leaveTo(PREV); return; }
+    if (i >= STOPS.length) { leaveTo(NEXT); return; }
+    aim = i; clearTimeout(timer); timer = setTimeout(function () { aim = null; }, 1200);
+    window.scrollTo({ top: i === 0 ? 0 : STOPS[i].getBoundingClientRect().top + scrollY, behavior: smooth ? "smooth" : "auto" });
+  }
+  window.addEventListener("scrollend", function () { aim = null; });
+  document.querySelectorAll(".pager [data-step]").forEach(function (a) {
+    a.addEventListener("click", function (e) { e.preventDefault(); step(+a.dataset.step); });
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.altKey || e.ctrlKey || e.metaKey || e.defaultPrevented) return;
+    if (e.target.closest && e.target.closest("input, select, textarea, [contenteditable], [role=tab], [role=radio], dialog[open]")) return;
+    if (e.key === "ArrowRight" || e.key === "PageDown") { e.preventDefault(); step(1); }
+    else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); step(-1); }
+  });
+})();
+</script>
+</body>
+</html>
